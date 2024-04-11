@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <title>HexaHome</title>
     <link href="./css/header_footer_general.css" rel="stylesheet">
+    <link href="./css/home.css" rel="stylesheet">
 </head>
 <body>
 <h1 class="invis">page</h1>
-<header>
-    <p id="logo">
+<header class="menu" id="header">
+    <p class="logo">
         HXH
     </p>
-    <ul id="dropdowns">
+    <ul id="dropdowns" class="pages">
         <li>
             <a href="./html/producten.html">
                 appartementen
@@ -66,7 +67,7 @@
             </a>
         </li>
     </ul>
-    <nav>
+    <nav class="bottom-menu">
         <h2 class="invis">nav</h2>
         <ul id="bread">
             <li>
@@ -77,10 +78,16 @@
     </nav>
 </header>
 <main>
-    <p>HEXAHOME</p>
-    <blockquote>
-        Make a simple house into a HexaHome.
-    </blockquote>
+    <div id="title" >
+        <p>HEXAHOME</p>
+        <blockquote id="quote">
+            Make a simple house into a HexaHome.
+        </blockquote>
+    </div>
+    <div id="left-right-padding">
+
+
+
     <section>
         <h2>wie zijn wij</h2>
         <p>
@@ -98,9 +105,7 @@
             te
             helpen de juiste keuze te maken.
         </p>
-        <figure>
-            <img src="./media/landschap.jpg" alt="french hilly landscape">
-        </figure>
+
     </section>
 
     <section>
@@ -136,40 +141,40 @@
         </section>
 
     </section>
+    </div>
 </main>
-<footer>
-    <section>
-        <h2>foot</h2>
-        <figure>
-            <img src="./media/hexahome_logo.png" alt="hexahome logo">
-        </figure>
-        <ul>
-            <li>
-                <a href="./html/producten.html">
-                    alle huizen
-                </a>
-            </li>
-            <li>
-                <a href="./html/producten.html">
-                    appartementen
-                </a>
-            </li>
-            <li>
-                <a href="./html/producten.html">
-                    rijhuizen
-                </a>
-            </li>
-            <li>
-                <a href="./html/producten.html">
-                    villa's
-                </a>
-            </li>
-        </ul>
-        <p>ilja.nachtergaele@student.kdg.be</p>
-        <p>Groenplaats 21</p>
-        <p>2000 Antwerpen</p>
+<footer class="menu">
+    <p class="logo">
+        HXH
+    </p>
+    <ul class="pages">
+        <li>
+            <a href="./html/producten.html">
+                appartementen
+            </a>
+        </li>
+        <li>
+            <a href="./html/producten.html">
+                rijhuizen
+            </a>
+        </li>
+        <li>
+            <a href="./html/producten.html">
+                villa's
+            </a>
+        </li>
+        <li>
+            <a href="./html/producten.html">
+                alle huizen
+            </a>
+        </li>
+    </ul>
+    <ul class="bottom-menu" id="email">
+        <li>ilja.nachtergaele@student.kdg.be</li>
+        <li>Groenplaats 21</li>
+        <li>2000 Antwerpen</li>
+    </ul>
 
-    </section>
 </footer>
 
 </body>

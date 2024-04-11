@@ -1,0 +1,32 @@
+#left-right-padding {
+    padding: 5em;
+}
+
+#title {
+    background-image: url("../media/landscape.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    font-size: 10em;
+    text-align: center;
+    padding: 1em 0 3em;
+
+    margin: 0;
+
+    color: rgba(0,0,0,0);
+
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: var(--Light-lilal);
+}
+
+#title * { margin: 0; }
+
+blockquote {
+    font-style: italic;
+    font-size: 3rem;
+
+    -webkit-text-stroke-width: 0;
+
+    color: var(--Light-lilal);
+}
+
