@@ -1,0 +1,46 @@
+main {
+    background-color: var(--Platinum);
+}
+
+.titel {
+    background-attachment: fixed;
+    font-size: 8em;
+    font-weight: bold;
+}
+
+.titel p {
+    margin: 0
+}
+
+#images {
+    display: flex;
+    height: 500px;
+}
+
+#images figure {
+    flex-shrink: 1;
+    margin: 0;
+    padding: 10px 5px;
+}
+
+#images figure:hover {
+    flex-shrink: 0.5;
+}
+
+img {
+    max-width: 100%;
+}
+
+#centrum {
+    display: flex;
+    flex-direction: row;
+}
+
+#centrum aside {
+    background-color: var(--Light-lilal);
+}
+
+#centrum section {
+    order: 0;
+}
+

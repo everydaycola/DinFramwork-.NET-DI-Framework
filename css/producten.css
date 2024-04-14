@@ -1,0 +1,109 @@
+#grid {
+    background-color: var(--Lilac);
+}
+
+#titel {
+    background-attachment: fixed;
+}
+
+#hexahome {
+    margin: 0;
+    padding: 30px 0 0;
+    font-size: 5em;
+}
+
+#woningen {
+    margin: 0;
+    padding: 0 0 70px;
+    font-size: 10em;
+}
+
+#grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+#grid a {
+    width: 20%;
+    height: 500px;
+
+    padding: 10px;
+    margin: 20px;
+    border: var(--Eerie-black) 1px solid;
+    border-radius: 25px;
+
+    background-color: var(--Platinum);
+}
+
+#grid section {
+
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+}
+
+
+#grid section > * {
+    margin: 0;
+    justify-self: center;
+    padding: 3px;
+}
+
+#grid h3 {
+    font-size: 1.5em;
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 1;
+
+    text-align: center;
+}
+
+.type {
+    grid-column-start: 1;
+    grid-row-start: 2;
+
+    padding-left: 20px;
+
+    border: var(--Eerie-black) 1px solid;
+    border-radius: .5em;
+    background-color: var(--Light-lilal);
+}
+
+.prijs {
+    grid-column-start: 2;
+    grid-row-start: 2;
+
+    justify-self: end;
+    padding-right: 20px;
+
+    border: var(--Eerie-black) 1px solid;
+    border-radius: .5em;
+    background-color: var(--Light-lilal);
+}
+
+.discr {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 3;
+
+    font-size: 0.85em;
+    padding: 0 10px;
+
+    flex-grow: 1;
+
+}
+
+#grid figure {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 4;
+
+    justify-self: center;
+    align-self: end;
+}
+

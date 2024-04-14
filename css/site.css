@@ -1,0 +1,85 @@
+/* colors */
+:root {
+    --Platinum: #F2E9F1;
+    --Coyote: #776856;
+    --Eerie-black: #1C2120;
+    --Blue-Gray: #5E99C7;
+    --Air-Force-blue: #5E8395;
+    --Rosy-brown: #AA8F91;
+    --Olive: #839410;
+    --Pear: #D8EB47;
+    --Grass: #a0ad09;
+    --Lilac: #C9A7C4;
+    --Light-lilal: #E8D9E6;
+    /*    https://coolors.co/d0d8d6-776856-1c2120-5e99c7-5e8395-aa8f91-c9a7c4-839410 */
+    /*    based on ../media/landscape.jpg */
+}
+
+/*klasse voor dingen die weg moeten*/
+.invis {
+    display: none;
+}
+
+
+/*links*/
+a{
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+
+li {
+    list-style: none;
+}
+
+/*Algemene eigenschappen*/
+body {
+    font-family: montserrat, sans-serif;
+    font-size: 16px;
+    margin: auto;
+    color: var(--Eerie-black);
+}
+
+.titel {
+    background-image: url("../media/landscape.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    font-family: "Times New Roman", serif;
+
+    text-align: center;
+
+    margin: 0;
+}
+
+.shadow {
+    color: var(--Light-lilal);
+
+    text-shadow: 0 1px 4px var(--Eerie-black);
+}
+
+.hollow {
+    /*make only pink border visible*/
+    color: rgba(0,0,0,0);
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: var(--Light-lilal);
+}
+
+
+
+
+.paragraph{
+
+}
+
+.paragraph p {
+    font-weight: 500;
+}
+
+.paragraph h2, .paragraph h3 {
+    font-size: 2em;
+    text-align: center;
+}

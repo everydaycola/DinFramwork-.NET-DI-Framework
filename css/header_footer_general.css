@@ -1,45 +1,6 @@
-/* colors */
-:root {
-    --Platinum: #D0D8D6;
-    --Coyote: #776856;
-    --Eerie-black: #1C2120;
-    --Blue-Gray: #5E99C7;
-    --Air-Force-blue: #5E8395;
-    --Rosy-brown: #AA8F91;
-    --Olive: #839410;
-    --Lilac: #C9A7C4;
-    --Light-lilal: #E8D9E6;
-/*    https://coolors.co/d0d8d6-776856-1c2120-5e99c7-5e8395-aa8f91-c9a7c4-839410 */
-/*    based on ../media/landscape.jpg */
-}
 
-/*links*/
-a{
-    text-decoration: none;
-}
 
-a:visited {
-    text-decoration: none;
-    color: inherit;
-}
 
-li {
-    list-style: none;
-}
-
-/*Algemene eigenschappen*/
-body {
-    background-color: var(--Platinum);
-    font-family: "Times New Roman", serif;
-    font-size: 16px;
-    margin: auto;
-    color: var(--Eerie-black);
-}
-
-/*klasse voor dingen die weg moeten*/
-.invis {
-    display: none;
-}
 
 .menu {
     padding: 10px;
@@ -58,6 +19,10 @@ body {
 
 #header > a {
     border: none;
+}
+
+.darker {
+    background-color: var(--Lilac);
 }
 
 .logo {
@@ -81,12 +46,12 @@ body {
 
 .pages {
     margin: 0 14px 0 0;
-    padding: 17px 0 21px;
+    padding: 19px 0 29px;
     /*layout of items*/
     display: flex;
     justify-content: space-around;
 
-    font-size: 50px;
+    font-size: 45px;
 
     grid-column-start: 2;
     grid-row-start: 1;
@@ -128,7 +93,7 @@ body {
     font-size: 0.75em;
 }
 
-#dropdowns li li:hover {
+#dropdowns li:hover li:hover {
     background-color: var(--Lilac);
 }
 
