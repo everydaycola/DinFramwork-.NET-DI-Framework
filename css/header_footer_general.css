@@ -6,6 +6,10 @@
     padding: 10px;
     display: grid;
     grid-template-columns: 300px;
+    grid-template-areas:
+    "logo pages"
+    "bread bread";
+
     border-top: 3px var(--Eerie-black) solid;
     border-bottom: 3px var(--Eerie-black) solid;
     background-color: var(--Light-lilal);
@@ -17,30 +21,29 @@
     border-radius: 5px;
 }
 
+/*logo doesnt get a border at this level*/
 #header > a {
     border: none;
 }
 
-.darker {
-    background-color: var(--Lilac);
-}
-
 .logo {
-    display: block;
     font-family: "Book Antiqua", serif;
-    line-height: 0.75em;
     font-size: 100px;
-    background-color: var(--Blue-Gray);
-    border-radius: 10px;
-    color: var(--Eerie-black);
-    width: 250px;
     text-align: center;
+
+    background-color: var(--Blue-Gray);
     border: 3px var(--Air-Force-blue) solid;
+    border-radius: 10px;
+
+    /*needed because large text has large margin by default*/
+    line-height: 0.75em;
+
+
+    width: 250px;
     margin: auto;
     padding: 10px;
 
-    grid-column-start: 1;
-    grid-row-start: 1;
+    grid-area: logo;
 
 }
 
@@ -53,17 +56,7 @@
 
     font-size: 45px;
 
-    grid-column-start: 2;
-    grid-row-start: 1;
-}
-
-#email {
-    padding: 10px;
-    /*layout of items*/
-    display: flex;
-    justify-content: space-between;
-
-    font-size: 2em;
+    grid-area: pages
 }
 
 /*hover menu positioning and hiding while not hovered*/
@@ -84,43 +77,40 @@
     display: flex;
     flex-direction: column;
     background-color: var(--Light-lilal);
-    border: var(--Eerie-black);
     text-align: left;
 
     border: var(--Eerie-black) 1px solid;
-    border-radius: 2px;
 
     font-size: 0.75em;
 }
 
+/*hover effect on hover menu*/
 #dropdowns li:hover li:hover {
     background-color: var(--Lilac);
 }
 
 
+/*breadcrumbs positioning*/
 .bottom-menu {
+    /*breathing room*/
     margin: 10px 1% 3px;
-
-    grid-column-start: 1;
-    grid-column-end: 3;
-    grid-row-start: 2;
+    grid-area: bread;
 }
 
 /*breadcrumbs*/
 #bread {
     display: flex;
-    align-items: baseline;
-    justify-content: left;
+    /*remove default large margin for large text*/
     margin: 2px;
     font-size: 20px;
 }
 
-/* separate crumbs */
+/* separate crumbs a bit*/
 #bread li {
     padding-right: 5px;
 }
 
-/* content before each part of the breadcrumbs except the first */
+/* adding a "> " before each part of the breadcrumbs except the first */
 #bread li:not(:first-child):before {
     content: '> ';
 }
@@ -129,5 +119,16 @@
 #bread img {
     height: 13px;
     aspect-ratio: auto;
+}
+
+/*contact info instead of breadcrumbs in footer,
+all other footer css is same as header*/
+#email {
+    padding: 10px;
+    /*layout of items*/
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 2em;
 }
 

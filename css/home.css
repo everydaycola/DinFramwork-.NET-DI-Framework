@@ -1,8 +1,5 @@
-#centrum {
-    padding: 2em 5em;
-    background-color: var(--Light-lilal);
-}
 
+/*create title using mostly title class in site.css*/
 #title {
     font-size: 10em;
     padding: 1em 0 2em;
@@ -12,6 +9,7 @@
     margin: 0;
 }
 
+/*subtitle*/
 blockquote {
     font-style: italic;
     font-size: 3rem;
@@ -20,14 +18,31 @@ blockquote {
 
     color: var(--Light-lilal);
 }
-#meeting {
-    display: grid;
+
+/*add a bit of padding to the main text*/
+#centrum {
+    padding: 2em 5em;
+    background-color: var(--Light-lilal);
 }
 
-#meeting * {
+/*make "wie zijn wij" bigger than normal paragraph header*/
+#intro h3 {
+    font-size: 3em;
+    /*remove margin for large text*/
     margin: 0;
 }
 
+/*meet our clients section*/
+#meeting {
+    display: grid;
+    grid-template-columns: 66% 33%;
+    grid-template-areas:
+        "title title"
+        "chloe isa"
+        "marc isa";
+}
+
+/*seperate each person*/
 #meeting > * {
     margin: 20px;
     background-color: var(--Platinum);
@@ -35,22 +50,24 @@ blockquote {
     border-radius: 25px;
 }
 
+/*second separation of text and image*/
 #meeting > * > * {
     background-color: var(--Light-lilal);
     border: var(--Eerie-black) 1px solid;
     border-radius: 5px;
 }
 
+
 #meeting h3 {
     font-size: 3em;
     text-align: center;
-    grid-column-start: 1;
-    grid-column-end: 4;
-    grid-row-start: 1;
+    grid-area: title;
 }
+/*make font size smaller than normal paragraph*/
 #meeting .title {
     font-size: 1.5rem;
 }
+/*fix image*/
 #meeting img {
     max-height: 200px;
     max-width: 200px;
@@ -58,24 +75,18 @@ blockquote {
     height: auto;
 }
 
+/*define grid areas*/
 #chloe {
-    grid-column-start: 1;
-    grid-column-end: 3;
-    grid-row-start: 2;
+    grid-area: chloe;
 }
-
 #marc {
-    grid-column-start: 1;
-    grid-column-end: 3;
-    grid-row-start: 3;
+    grid-area: marc;
 }
-
 #isa {
-    grid-column-start: 3;
-    grid-row-start: 2;
-    grid-row-end: 4;
+    grid-area: isa;
 }
 
+/*layout for all 3 meetings*/
 .intv {
     padding: 20px;
     display: flex;
@@ -83,11 +94,13 @@ blockquote {
     align-items: center;
     gap: 30px;
 }
+
 .intv p, .intv .title {
     padding: 20px;
     margin: 0;
 }
 
+/*horizontal and vertical meetings*/
 .horizontal {
     flex-direction: row;
 }

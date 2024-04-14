@@ -1,17 +1,17 @@
 /* colors */
 :root {
+    /*lightest color*/
     --Platinum: #F2E9F1;
-    --Coyote: #776856;
+    /*darker*/
+    --Light-lilal: #E8D9E6;
+    /*darkest tint*/
+    --Lilac: #C9A7C4;
+    /*text color*/
     --Eerie-black: #1C2120;
+    /*for logo, could be used as an accent*/
     --Blue-Gray: #5E99C7;
     --Air-Force-blue: #5E8395;
-    --Rosy-brown: #AA8F91;
-    --Olive: #839410;
-    --Pear: #D8EB47;
-    --Grass: #a0ad09;
-    --Lilac: #C9A7C4;
-    --Light-lilal: #E8D9E6;
-    /*    https://coolors.co/d0d8d6-776856-1c2120-5e99c7-5e8395-aa8f91-c9a7c4-839410 */
+    /*    https://coolors.co/f2e9f1-e8d9e6-c9a7c4-1c2120-5e99c7-5e8395 */
     /*    based on ../media/landscape.jpg */
 }
 
@@ -21,21 +21,28 @@
 }
 
 
-/*links*/
+/*make links not blue*/
 a{
     text-decoration: none;
 }
 
+/*make visited links not purple*/
 a:visited {
     text-decoration: none;
     color: inherit;
 }
 
+/*remove default list indent*/
+ul {
+    padding: 0;
+}
+
+/*remove default bullet points*/
 li {
     list-style: none;
 }
 
-/*Algemene eigenschappen*/
+/*Algemene text eigenschappen*/
 body {
     font-family: montserrat, sans-serif;
     font-size: 16px;
@@ -44,6 +51,8 @@ body {
 }
 
 .titel {
+    /*creating a title, needs padding and increased font size
+    works well with .shadow or .hollow*/
     background-image: url("../media/landscape.jpg");
     background-repeat: no-repeat;
     background-size: cover;
@@ -55,12 +64,14 @@ body {
     margin: 0;
 }
 
+/*adding shadow, especially to the title*/
 .shadow {
     color: var(--Light-lilal);
 
     text-shadow: 0 1px 4px var(--Eerie-black);
 }
 
+/*for hollow title effect*/
 .hollow {
     /*make only pink border visible*/
     color: rgba(0,0,0,0);
@@ -68,18 +79,13 @@ body {
     -webkit-text-stroke-color: var(--Light-lilal);
 }
 
-
-
-
-.paragraph{
-
-}
-
+/*make small text more clear*/
 .paragraph p {
     font-weight: 500;
 }
 
-.paragraph h2, .paragraph h3 {
+/*center headers*/
+.paragraph h2, .paragraph h3, .paragraph h4, .paragraph h5, .paragraph h6 {
     font-size: 2em;
     text-align: center;
 }

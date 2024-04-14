@@ -1,46 +1,93 @@
+/*set total background*/
 main {
     background-color: var(--Platinum);
 }
-
+/*make normal title image fixed*/
 .titel {
     background-attachment: fixed;
     font-size: 8em;
     font-weight: bold;
 }
-
+/*remove large text margin*/
 .titel p {
     margin: 0
 }
 
+/*put all images in flex row*/
 #images {
     display: flex;
+    /*fixed height so they can expand*/
     height: 500px;
 }
 
+/*flex shrink so images fit regardless of amount*/
 #images figure {
     flex-shrink: 1;
     margin: 0;
     padding: 10px 5px;
+    align-self: center;
 }
-
+/*when hovered, decrease shrink so image will go big*/
 #images figure:hover {
     flex-shrink: 0.5;
 }
 
-img {
-    max-width: 100%;
+/*image scales with <figure> */
+#images img {
+    width: 100%;
+    height: auto;
 }
-
+/*put asides and main text in flex row*/
 #centrum {
     display: flex;
     flex-direction: row;
 }
-
+/*gives both asides background and padding*/
 #centrum aside {
     background-color: var(--Light-lilal);
+    padding: 0 2em;
+    text-align: center;
+}
+/*fix icon size*/
+#centrum aside figure {
+    margin: 0;
+    height: 50px;
+}
+/*image scales with <figure> */
+#centrum aside img {
+    height: 100%;
+}
+/*make middle be in the middle*/
+#middle {
+    order: 1;
+    padding: 5em;
+}
+/*make right aside be on the right*/
+#right {
+    order: 2;
+}
+/*no clue what this does*/
+#left {
+    order: 0;
+}
+/*general border class for things in asides*/
+.border {
+    border: var(--Eerie-black) 1px solid;
+    border-radius: 5px;
+    margin: 25px;
+    padding: 10px;
+    background-color: var(--Lilac);
+}
+/*price needs to be bigger*/
+#price {
+    font-size: 1.5em;
+    text-align: center;
 }
 
-#centrum section {
-    order: 0;
+/*gives forms some basic layout*/
+input {
+    background-color: var(--Light-lilal);
+    border: var(--Eerie-black) 1px solid;
+    border-radius: 5px;
 }
 
