@@ -15,7 +15,9 @@
     <link href="../css/site.css" rel="stylesheet">
     <link href="../css/header_footer_general.css" rel="stylesheet">
     <link href="../css/bezoek.css" rel="stylesheet">
-    <script type="text/javascript" src="../scripts/klein_formulier.js" defer></script>
+    <script type="module" src="../scripts/Data.js" defer></script>
+    <script type="text/javascript" src="../scripts/load_bezoek.js" defer></script>
+    <script type="text/javascript" src="../scripts/bestel.js" defer></script>
 </head>
 <body>
 <h1 class="invis">page</h1>
@@ -92,17 +94,18 @@
     </nav>
 </header>
 <main>
-    <section class="titel shadow" id="titel">
-        <h2 class="invis">titel</h2>
-        <p id="hexahome">HEXAHOME</p>
-        <p id="woningen">Bevestiging</p>
-    </section>
+    <div class="titel hollow">
+        <p id="title">no title found</p>
+        <section id="images">
+            <h2 class="invis">images</h2>
+        </section>
+    </div>
     <article id="centrum">
         <h2 class="invis">centrum</h2>
         <section id="middle" class="paragraph">
             <h3 class="invis">Descriptie</h3>
             <div class="container">
-                <form action="/action_page.php">
+                <form id="form" action="../html/bevestiging.html" method="get">
                     <h3>Current Home address</h3>
                     <label for="fname">Full Name(*)</label>
                     <input type="text" id="fname" name="firstname" placeholder="Lastname Firstname" required="">
@@ -111,7 +114,7 @@
                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" title="this is not valid email"
                            required="">
                     <label for="ftel">phone number(*)</label>
-                    <input type="text" id="ftel" name="city" placeholder="04-123-456-78" pattern="^0?[1-9][0-9]{7,8}$"
+                    <input type="text" id="ftel" name="tel" placeholder="04-123-456-78" pattern="^0?[1-9][0-9]{7,8}$"
                            title="this is not a phone number"
                            required="">
                     <label for="street">Address(*)</label>
@@ -159,63 +162,44 @@ https://en.wikipedia.org/wiki/Payment_card_number  -->
                     <input type="text" id="cvv" name="cvv" placeholder="352" pattern="[0-9]{3}"
                            title="ccv is a 3 digit number"
                            required="">
-                    <div class="row left-row">
                         <input type="checkbox" id="terms" name="terms" value="terms" required="" title="you have to agree">
                         <label for="terms"> ik ga akkoord met de terms en condities</label>
-                    </div>
+                    <input id="id" type="hidden" name="id" value="-1">
+                    <span id="feedback"></span>
+
                     <input type="submit" value="Boek een bezoek" class="btn">
                 </form>
-            </div>
-            <section>
-                <h4>Modern Apartment in het hartje van Parijs</h4>
-                <p>Dit prachtige appartement is gelegen in een van de meest gewilde wijken van Parijs, op loopafstand
-                    van
-                    de
-                    Eiffeltoren, de Champs-Élysées en het Louvre. Het appartement is onlangs gerenoveerd en heeft een
-                    moderne
-                    uitstraling, met een volledig uitgeruste keuken, een luxe badkamer en een gezellige slaapkamer.</p>
-            </section>
-            <section>
-                <h4>Ruime and heldere living kamer</h4>
-                <p>Het appartement heeft een oppervlakte van 60 m2 en is geschikt voor maximaal vier personen. De
-                    woonkamer is ruim
-                    en licht, met een comfortabele bank, een eettafel en een flatscreen-tv. De keuken is voorzien van
-                    een koelkast,
-                    een oven, een magnetron, een vaatwasser en een koffiezetapparaat. De badkamer heeft een
-                    inloopdouche, een
-                    wastafel en een toilet. De slaapkamer heeft een tweepersoonsbed, een kledingkast en een bureau.</p>
-            </section>
 
-            <section>
-                <h4>De ideale locatie</h4>
-                <p>
-                    Het appartement is ideaal voor iemand die wil genieten van het bruisende leven in Parijs, met tal
-                    van
-                    restaurants, cafés, winkels en culturele attracties in de buurt. Het appartement is ook goed
-                    bereikbaar met het
-                    openbaar vervoer, met een metrostation en een bushalte op slechts een paar minuten lopen. Het
-                    appartement is
-                    beschikbaar voor een koopprijs van €564.200, inclusief servicekosten en internet. Vul vandaag het
-                    formulier nog in om een bezoek te plannen!
-                </p>
+            </div>
+            <section id="p1">
+                <h4>no title found</h4>
+                <p>no paragraph found</p>
+            </section>
+            <section id="p2">
+                <h4>no title 2 found</h4>
+                <p>no paragraph 2 found</p>
+            </section>
+            <section id="p3">
+                <h4>no title 3 found</h4>
+                <p>no paragraph 3 found</p>
             </section>
         </section>
         <aside id="left">
             <h3 class="invis">left aside</h3>
-            <p id="price">€564.200</p>
+            <p id="price">no price found</p>
             <section class="border">
                 <h4 class="invis">energie</h4>
                 <figure>
                     <img src="../media/Energy-labels.png" alt="energie label">
                 </figure>
-                <p>A</p>
+                <p id="energy" >no energy found</p>
             </section>
             <section class="border">
                 <h4 class="invis">heating</h4>
                 <figure>
                     <img src="../media/heating.png" alt="energie label">
                 </figure>
-                <p>electric</p>
+                <p id="heating">no heating found</p>
             </section>
         </aside>
         <aside id="right">
@@ -225,14 +209,14 @@ https://en.wikipedia.org/wiki/Payment_card_number  -->
                 <figure>
                     <img src="../media/locatie.png" alt="locatie icoon">
                 </figure>
-                <p>Parijs</p>
+                <p id="locatie">no locatie found</p>
             </section>
             <section class="border">
                 <h4 class="invis">oppervlakte</h4>
                 <figure>
                     <img src="../media/vloer_plan.png" alt="vloer plan icoon">
                 </figure>
-                <p>60m<sup>2</sup></p>
+                <p id="oppervlakte">??m<sup>2</sup></p>
             </section>
             <section class="border">
                 <h4 class="invis">Aantal kamers</h4>
@@ -240,9 +224,9 @@ https://en.wikipedia.org/wiki/Payment_card_number  -->
                     <img src="../media/slaapkamer_icoon.png" alt="slaapkamer icoon">
                 </figure>
                 <ul>
-                    <li>4 kamers</li>
-                    <li>2 slaapkamers</li>
-                    <li>1 badkamers</li>
+                    <li id="kamers">?? kamers</li>
+                    <li id="slaapkamers">?? slaapkamers</li>
+                    <li id="badkamers">?? badkamers</li>
                 </ul>
             </section>
         </aside>

@@ -1,4 +1,4 @@
-const data = [
+window.data = [
     {
         id: 1,
         naam: "34 Rue du Dr Roux 15B",
@@ -24,6 +24,7 @@ const data = [
         energie: "A",
         heating: "electric",
         locatie: "Parijs",
+        oppervlakte: "60m2",
         aantal: {
             kamers: 4,
             slaapkamers: 2,
@@ -69,6 +70,7 @@ const data = [
         energie: "B",
         heating: "gas",
         locatie: "Parijs",
+        oppervlakte: "146m2",
         aantal: {
             kamers: 8,
             slaapkamers: 4,
@@ -96,7 +98,7 @@ const data = [
             "../media/villa/detail/vild3.jpg",
             "../media/villa/detail/vild4.jpg",
             "../media/villa/detail/vild5.jpg",
-            "../media/villa/detail/vild6.jpg",
+            "../media/villa/detail/vild6.png",
             "../media/villa/detail/vild7.jpg",
             "../media/villa/detail/vild8.jpg",
             "../media/villa/detail/vild9.jpg",
@@ -116,6 +118,7 @@ const data = [
         energie: "D",
         heating: "wood",
         locatie: "Versailles",
+        oppervlakte: "63.154m2",
         aantal: {
             kamers: 2300,
             slaapkamers: 985,

@@ -9,8 +9,40 @@
     font-size: 5em;
 }
 
-#woningen {
+/*make normal title image fixed*/
+.titel {
+    font-size: 8em;
+    font-weight: bold;
     margin: 0;
+}
+
+#title {
+    margin: 0;
+}
+
+/*put all images in flex row*/
+#images {
+    display: flex;
+    /*fixed height so they can expand*/
+    height: 500px;
+}
+
+/*flex shrink so images fit regardless of amount*/
+#images figure {
+    flex-shrink: 1;
+    margin: 0;
+    padding: 10px 5px;
+    align-self: center;
+}
+/*when hovered, decrease shrink so image will go big*/
+#images figure:hover {
+    flex-shrink: 0.5;
+}
+
+/*image scales with <figure> */
+#images img {
+    width: 100%;
+    height: auto;
 }
 
 /*put asides and main text in flex row*/
