@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>HexaHome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Silkscreen&display=swap"
+          rel="stylesheet">
+    <link href="../css/site.css" rel="stylesheet">
+    <link href="../css/header_footer_general.css" rel="stylesheet">
+    <link href="../css/bezoek.css" rel="stylesheet">
+    <script type="text/javascript" src="../scripts/klein_formulier.js" defer></script>
+</head>
+<body>
+<h1 class="invis">page</h1>
+<header class="menu" id="header">
+    <a href="../index.html">
+        <p class="logo">
+            HXH
+        </p>
+    </a>
+    <ul id="dropdowns" class="pages">
+        <li>
+            <a href="../html/producten.html">
+                appartementen
+            </a>
+            <ul>
+                <li>
+                    <a href="../html/34_Rue_du_Dr_Roux_15B.html">
+                        34 Rue du Dr Roux, 15B
+                    </a>
+                </li>
+                <li>13 Rue Jean Zay, 7</li>
+                <li>54 Bd du Montparnasse, 105</li>
+                <li>6 Rue Laromiguière, 45</li>
+                <li>3 Rue du Pot de Fer, 603</li>
+            </ul>
+        </li>
+        <li>
+            <a href="../html/producten.html">
+                rijhuizen
+            </a>
+            <ul>
+                <li>
+                    <a href="../html/58_Rue_Lemercier.html">
+                        58 Rue Lemercier
+                    </a>
+                </li>
+                <li>68 Rue Laugier</li>
+                <li>128 Rue Louis Rouquier</li>
+                <li>85 Rue des Rosiers</li>
+                <li>8 Rue de Lunéville</li>
+            </ul>
+        </li>
+        <li>
+            <a href="../html/producten.html">
+                villa's
+            </a>
+            <ul>
+                <li>
+                    <a href="../html/Paleis_van_Versailles.html">
+                        Paleis van Versailles
+                    </a>
+                </li>
+                <li>Manoir de la Falaise</li>
+                <li>Auberge du Soleil</li>
+                <li>Le Nid Douillet</li>
+                <li>Le Petit Château</li>
+            </ul>
+        </li>
+        <li>
+            <a href="../html/producten.html">
+                alle huizen
+            </a>
+        </li>
+    </ul>
+    <nav class="bottom-menu">
+        <h2 class="invis">nav</h2>
+        <ul id="bread">
+            <li>
+                <img src="../media/huis_icoon.png" alt="home icon">
+            </li>
+            <li><a href="../index.html">home</a></li>
+            <li>bezoek</li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <section class="titel shadow" id="titel">
+        <h2 class="invis">titel</h2>
+        <p id="hexahome">HEXAHOME</p>
+        <p id="woningen">Bevestiging</p>
+    </section>
+    <article id="centrum">
+        <h2 class="invis">centrum</h2>
+        <section id="middle" class="paragraph">
+            <h3 class="invis">Descriptie</h3>
+            <div class="container">
+                <form action="/action_page.php">
+                    <h3>Current Home address</h3>
+                    <label for="fname">Full Name(*)</label>
+                    <input type="text" id="fname" name="firstname" placeholder="Lastname Firstname" required="">
+                    <label for="femail">Email(*)</label>
+                    <input type="text" id="femail" name="email" placeholder="mail.@example.com"
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" title="this is not valid email"
+                           required="">
+                    <label for="ftel">phone number(*)</label>
+                    <input type="text" id="ftel" name="city" placeholder="04-123-456-78" pattern="^0?[1-9][0-9]{7,8}$"
+                           title="this is not a phone number"
+                           required="">
+                    <label for="street">Address(*)</label>
+                    <input type="text" id="street" name="street and number" placeholder="streetname 21" required="">
+                    <div class="row">
+                        <div>
+                            <label for="date"> time of visit(*)</label>
+                            <input type="datetime-local" id="date" name="date" required="">
+                            <!--                            minimum is set with css-->
+                        </div>
+                        <div>
+<!--                            not required because easier to test-->
+                            <label for="myfile">upload your id:</label>
+                            <input type="file" id="myfile" name="myfile">
+                        </div>
+                        <div>
+                            <label for="aantal">Aantal aanwezig bij bezoek(*):</label>
+                            <select name="aantal" id="aantal" required="">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4+">4 of meer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label for="extra">extra informatie(*)</label>
+                    <input type="text" id="extra" name="extra informatie" placeholder="schrijf hier..." required="">
+
+
+                    <h3>Down Payment</h3>
+                    <label for="cname">Name on Card(*)</label>
+                    <input type="text" id="cname" name="cardname" placeholder="John More Doe" required="">
+                    <label for="ccnum">Credit card number(*)</label>
+<!--                    probably bad pattern but realistic would be too long (same with email and phone number)
+https://en.wikipedia.org/wiki/Payment_card_number  -->
+                    <input type="text" id="ccnum" name="cardnumber" placeholder="1111-2222-3333-4444"
+                           pattern="^[0-9]{16}$" title="write only numbers"
+                           required="">
+                    <label for="exp">Exp Month(*)</label>
+                    <input type="text" id="exp" name="expmonth"
+                           placeholder="MM/YY" pattern="^(0?[1-9]|1[0-2])\/\d{2}$" title="write in MM/YY format"
+                           required="">
+                    <label for="cvv">CVV(*)</label>
+                    <input type="text" id="cvv" name="cvv" placeholder="352" pattern="[0-9]{3}"
+                           title="ccv is a 3 digit number"
+                           required="">
+                    <div class="row left-row">
+                        <input type="checkbox" id="terms" name="terms" value="terms" required="" title="you have to agree">
+                        <label for="terms"> ik ga akkoord met de terms en condities</label>
+                    </div>
+                    <input type="submit" value="Boek een bezoek" class="btn">
+                </form>
+            </div>
+            <section>
+                <h4>Modern Apartment in het hartje van Parijs</h4>
+                <p>Dit prachtige appartement is gelegen in een van de meest gewilde wijken van Parijs, op loopafstand
+                    van
+                    de
+                    Eiffeltoren, de Champs-Élysées en het Louvre. Het appartement is onlangs gerenoveerd en heeft een
+                    moderne
+                    uitstraling, met een volledig uitgeruste keuken, een luxe badkamer en een gezellige slaapkamer.</p>
+            </section>
+            <section>
+                <h4>Ruime and heldere living kamer</h4>
+                <p>Het appartement heeft een oppervlakte van 60 m2 en is geschikt voor maximaal vier personen. De
+                    woonkamer is ruim
+                    en licht, met een comfortabele bank, een eettafel en een flatscreen-tv. De keuken is voorzien van
+                    een koelkast,
+                    een oven, een magnetron, een vaatwasser en een koffiezetapparaat. De badkamer heeft een
+                    inloopdouche, een
+                    wastafel en een toilet. De slaapkamer heeft een tweepersoonsbed, een kledingkast en een bureau.</p>
+            </section>
+
+            <section>
+                <h4>De ideale locatie</h4>
+                <p>
+                    Het appartement is ideaal voor iemand die wil genieten van het bruisende leven in Parijs, met tal
+                    van
+                    restaurants, cafés, winkels en culturele attracties in de buurt. Het appartement is ook goed
+                    bereikbaar met het
+                    openbaar vervoer, met een metrostation en een bushalte op slechts een paar minuten lopen. Het
+                    appartement is
+                    beschikbaar voor een koopprijs van €564.200, inclusief servicekosten en internet. Vul vandaag het
+                    formulier nog in om een bezoek te plannen!
+                </p>
+            </section>
+        </section>
+        <aside id="left">
+            <h3 class="invis">left aside</h3>
+            <p id="price">€564.200</p>
+            <section class="border">
+                <h4 class="invis">energie</h4>
+                <figure>
+                    <img src="../media/Energy-labels.png" alt="energie label">
+                </figure>
+                <p>A</p>
+            </section>
+            <section class="border">
+                <h4 class="invis">heating</h4>
+                <figure>
+                    <img src="../media/heating.png" alt="energie label">
+                </figure>
+                <p>electric</p>
+            </section>
+        </aside>
+        <aside id="right">
+            <h3 class="invis">right aside</h3>
+            <section class="border">
+                <h4 class="invis">locatie</h4>
+                <figure>
+                    <img src="../media/locatie.png" alt="locatie icoon">
+                </figure>
+                <p>Parijs</p>
+            </section>
+            <section class="border">
+                <h4 class="invis">oppervlakte</h4>
+                <figure>
+                    <img src="../media/vloer_plan.png" alt="vloer plan icoon">
+                </figure>
+                <p>60m<sup>2</sup></p>
+            </section>
+            <section class="border">
+                <h4 class="invis">Aantal kamers</h4>
+                <figure>
+                    <img src="../media/slaapkamer_icoon.png" alt="slaapkamer icoon">
+                </figure>
+                <ul>
+                    <li>4 kamers</li>
+                    <li>2 slaapkamers</li>
+                    <li>1 badkamers</li>
+                </ul>
+            </section>
+        </aside>
+    </article>
+</main>
+<footer class="menu">
+    <a href="../index.html">
+        <p class="logo">
+            HXH
+        </p>
+    </a>
+    <ul class="pages">
+        <li>
+            <a href="../html/producten.html">
+                appartementen
+            </a>
+        </li>
+        <li>
+            <a href="../html/producten.html">
+                rijhuizen
+            </a>
+        </li>
+        <li>
+            <a href="../html/producten.html">
+                villa's
+            </a>
+        </li>
+        <li>
+            <a href="../html/producten.html">
+                alle huizen
+            </a>
+        </li>
+    </ul>
+    <ul class="bottom-menu" id="email">
+        <li>ilja.nachtergaele@student.kdg.be</li>
+        <li>Groenplaats 21</li>
+        <li>2000 Antwerpen</li>
+    </ul>
+
+</footer>
+</body>
+</html>
+</body>
+</html>

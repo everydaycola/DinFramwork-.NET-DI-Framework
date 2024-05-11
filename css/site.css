@@ -17,7 +17,11 @@
 
 /*klasse voor dingen die weg moeten*/
 .invis {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    left:-10000px;
 }
 
 
