@@ -26,21 +26,14 @@ function loginSubmit(event) {
     }
 }
 
-const form = document.getElementById('bestelForm'); // Assuming the form has the ID "bestelForm"
-
-// Get references to all input fields
-const firstNameInput = document.getElementById('fname');
-const dateInput = document.getElementById('date');
-const cvvInput = document.getElementById('cvv');
-const termsCheckbox = document.getElementById('terms');
-
-firstNameInput.addEventListener('blur', validateFirstName);
-dateInput.addEventListener('blur', validateDate);
-cvvInput.addEventListener('blur', validateCvv);
-termsCheckbox.addEventListener('change', validateTerms);
+document.getElementById('fname').addEventListener('blur', validateFirstName);
+document.getElementById('date').addEventListener('blur', validateDate);
+document.getElementById('cvv').addEventListener('blur', validateCvv);
+document.getElementById('terms').addEventListener('change', validateTerms);
 
 // Validation functions
 function validateFirstName() {
+    const firstNameInput = document.getElementById('fname');
     const firstName = firstNameInput.value.trim();
     if (firstName.length < 2) {
         firstNameInput.style.backgroundColor = 'red';
@@ -53,7 +46,7 @@ function validateFirstName() {
 
 function validateDate() {
     const today = Date.now();
-    const selectedDate = new Date(dateInput.value);
+    const selectedDate = new Date(document.getElementById('date').value);
 
     // Check if selected date is after today's date (ignoring time)
     return selectedDate > today;
@@ -61,6 +54,7 @@ function validateDate() {
 
 
 function validateCvv() {
+    const cvvInput = document.getElementById('cvv');
     const cvv = cvvInput.value.trim();
     const regex = /^\d{3}$/;
     if (!regex.test(cvv)) {
@@ -73,6 +67,7 @@ function validateCvv() {
 }
 
 function validateTerms() {
+    const termsCheckbox = document.getElementById('terms');
     if (!termsCheckbox.checked) {
         termsCheckbox.style.backgroundColor = 'red';
         return false;
