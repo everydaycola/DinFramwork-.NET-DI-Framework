@@ -27,7 +27,7 @@ function init() {
             document.getElementById("badkamers").innerHTML = item.aantal.badkamers + " badkamers";
 
 
-            imagesSection = document.getElementById("images");
+            const imagesSection = document.getElementById("images");
 
             console.log(item.images.length);
 

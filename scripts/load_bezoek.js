@@ -25,8 +25,6 @@ function init() {
     for(let item of window.data) {
         if (item.id == id) {
 
-            console.log(item.naam);
-
             document.getElementById("title").innerHTML = item.naam;
             document.getElementById("price").innerHTML = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(
                 item.price,
@@ -40,9 +38,7 @@ function init() {
             document.getElementById("badkamers").innerHTML = item.aantal.badkamers + " badkamers";
 
 
-            imagesSection = document.getElementById("images");
-
-            console.log(item.images.length);
+            const imagesSection = document.getElementById("images");
 
             for (let i = 0; i < item.images.length; i++) {
                 img = imagesSection.appendChild(document.createElement("figure")).appendChild(document.createElement("img"));
