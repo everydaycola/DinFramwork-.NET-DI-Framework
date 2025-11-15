@@ -1,0 +1,11 @@
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\bin\Debug\net8.0\DIN_ClassLibrary.deps.json
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\bin\Debug\net8.0\DIN_ClassLibrary.dll
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\bin\Debug\net8.0\DIN_ClassLibrary.pdb
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\DIN_ClassLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\DIN_ClassLibrary.AssemblyInfoInputs.cache
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\DIN_ClassLibrary.AssemblyInfo.cs
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\DIN_ClassLibrary.csproj.CoreCompileInputs.cache
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\DIN_ClassLibrary.dll
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\refint\DIN_ClassLibrary.dll
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\DIN_ClassLibrary.pdb
+C:\Users\iljan\Documents\My Documents\school proj\Y3\Prog3\Code\Framework\Solution1\DIN_ClassLibrary\obj\Debug\net8.0\ref\DIN_ClassLibrary.dll
