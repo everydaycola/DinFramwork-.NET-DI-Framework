@@ -1,18 +1,18 @@
-﻿// A. Create Container
-
-using ConsoleApp1;
+﻿using ConsoleApp1;
 using DIN_ClassLibrary;
 
 var container = new DiContainer();
 
-container.Register("logger", typeof(ConsoleLogger));
+container.Register(typeof(ILogger), typeof(ConsoleLogger));
 
-container.Register("mainApp", typeof(DataService));
+container.Register(typeof(DataService), typeof(DataService));
 
 Console.WriteLine("Container is ready. Resolving 'mainApp'...");
 
+var myService = (DataService) container.GetService(typeof(DataService));
 
-var myService = (DataService) container.GetService("mainApp");
+
+container.PrintGraph();
 
 myService.DoSomething();
 

@@ -1,4 +1,6 @@
-﻿namespace DIN_ClassLibrary;
+﻿using System.Reflection;
+
+namespace DIN_ClassLibrary;
 
 using System;
 using System.Collections.Generic;
@@ -7,45 +9,57 @@ using System.Linq;
 public class DiContainer
 {
     // Maps a String Name to a specific Type
-    private readonly Dictionary<string, Type> _registry = new();
+    private readonly Dictionary<Type, Type> _registry = new();
     
-    // 2. Registration: strictly name-based
-    public void Register(string serviceName, Type implementationType)
+    private readonly DependencyGraph _dependencyGraph = new ();
+    
+    // 2. Registration
+    public void Register(Type serviceType, Type implementationType)
     {
-        _registry[serviceName] = implementationType;
+        Console.WriteLine($"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
+        _registry[serviceType] = implementationType;
+        _dependencyGraph.AddVertex(serviceType);
     }
     
     // 3. Resolution: The recursive magic
-    public object GetService(string serviceName)
+    public object GetService(Type serviceType)
     {
+        Console.WriteLine($"Resolving service: {serviceType.Name}");
         // Validation
-        if (!_registry.ContainsKey(serviceName))
+        if (!_registry.TryGetValue(serviceType, out var registryValue))
         {
-            throw new Exception($"Service not registered: {serviceName}");
+            Console.WriteLine($"Failed to resolve service: {serviceType.Name} - Not registered");
+            throw new Exception($"Service not registered: {serviceType.Name}");
         }
         
-        // Get the first constructor
-        var constructor = _registry[serviceName].GetConstructors().First();
+        // Get constructors
+        var constructors = registryValue.GetConstructors();
         
-        // Get the parameters that constructor needs
-        var parameters = constructor.GetParameters();
+        // Just get the first for now
+        var firstConstructor = constructors.First();
         
-        // Prepare the arguments list
+        // Get the parameters that the constructor needs
+        var parameters = firstConstructor.GetParameters();
+        
+        // Prepare the argument list
         var args = new object[parameters.Length];
         
         for (var i = 0; i < parameters.Length; i++)
         {
-            var parameter = parameters[i];
-            
-            // CORE LOGIC: We use the Parameter's NAME to find the dependency
-            // If the parameter is "ILogger myLogger", we look for "myLogger"
-            var dependentServiceName = parameter.Name;
-            
+            var parameterType = parameters[i].ParameterType;
+            Console.WriteLine($"Resolving dependency parameter: {parameterType.Name} for service: {serviceType.Name}");
             // Recursive call: Resolve the dependency
-            args[i] = GetService(dependentServiceName);
+            args[i] = GetService(parameterType);
+            _dependencyGraph.AddEdge(serviceType, parameterType);
         }
-        
+
         // Create the object with the resolved arguments
-        return constructor.Invoke(args);
+        Console.WriteLine($"Creating instance of service: {serviceType.Name}");
+        return firstConstructor.Invoke(args);
+    }
+    
+    public void PrintGraph()
+    {
+        _dependencyGraph.PrintGraph();
     }
 }

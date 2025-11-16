@@ -1,16 +1,9 @@
 ﻿namespace ConsoleApp1;
 
-public class DataService
+public class DataService(ILogger logger)
 {
-    private readonly ILogger _logger;
-    
-    public DataService(ILogger logger)
-    {
-        _logger = logger;
-    }
-    
     public void DoSomething()
     {
-        _logger.Log("DataService is working correctly!");
+        logger.Log("DataService is working correctly!");
     }
 }
