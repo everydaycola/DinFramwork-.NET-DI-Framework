@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{1575C91F-BB91-4E27-8BD9-2059F9BBFC09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIN_ClassLibrary", "DIN_ClassLibrary\DIN_ClassLibrary.csproj", "{235484C2-15D8-4B36-B728-946336D13B2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinClassLibrary", "DinClassLibrary\DinClassLibrary.csproj", "{235484C2-15D8-4B36-B728-946336D13B2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

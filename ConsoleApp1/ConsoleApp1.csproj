@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DIN_ClassLibrary\DIN_ClassLibrary.csproj" />
+      <ProjectReference Include="..\DinClassLibrary\DinClassLibrary.csproj" />
     </ItemGroup>
 
 </Project>

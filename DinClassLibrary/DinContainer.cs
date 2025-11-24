@@ -1,22 +1,21 @@
-﻿using System.Reflection;
-
-namespace DIN_ClassLibrary;
+﻿namespace DinClassLibrary;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class DiContainer
+public class DinContainer
 {
     // Maps a String Name to a specific Type
     private readonly Dictionary<Type, Type> _registry = new();
     
-    private readonly DependencyGraph _dependencyGraph = new ();
+    private readonly DinDependencyGraph _dependencyGraph = new();
     
     // 2. Registration
     public void Register(Type serviceType, Type implementationType)
     {
-        Console.WriteLine($"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
+        Console.WriteLine(
+            $"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
         _registry[serviceType] = implementationType;
         _dependencyGraph.AddVertex(serviceType);
     }
@@ -32,14 +31,39 @@ public class DiContainer
             throw new Exception($"Service not registered: {serviceType.Name}");
         }
         
-        // Get constructors
+        // Get non default constructors
         var constructors = registryValue.GetConstructors();
+        var defaultConstructor = constructors
+            .Where(c => c.GetParameters().Length == 0)
+            .ToList();
+        var nonDefaultConstructors = constructors
+            .Where(c => c.GetParameters().Length != 0)
+            .ToList();
         
-        // Just get the first for now
-        var firstConstructor = constructors.First();
+        if (!nonDefaultConstructors.Any())
+        {
+            return defaultConstructor.Count == 0
+                // todo throw better exception
+                ? throw new Exception($"No constructor found for: {serviceType.Name}") 
+                : defaultConstructor[0].Invoke(null);
+        }
+        
+        if (nonDefaultConstructors.Count >= 2)
+        {
+            Console.WriteLine($"Multiple non-default constructors found for: {serviceType.Name}");
+            foreach (var c in nonDefaultConstructors)
+            {
+                // todo test if output is usefull
+                Console.WriteLine(c.ToString());
+            }
+            // todo throw better exception
+            throw new Exception($"Multiple non-default constructors found for: {serviceType.Name}");
+        }
+        
+        var constructor = nonDefaultConstructors[0];
         
         // Get the parameters that the constructor needs
-        var parameters = firstConstructor.GetParameters();
+        var parameters = constructor.GetParameters();
         
         // Prepare the argument list
         var args = new object[parameters.Length];
@@ -52,14 +76,14 @@ public class DiContainer
             args[i] = GetService(parameterType);
             _dependencyGraph.AddEdge(serviceType, parameterType);
         }
-
+        
         // Create the object with the resolved arguments
         Console.WriteLine($"Creating instance of service: {serviceType.Name}");
-        return firstConstructor.Invoke(args);
+        return constructor.Invoke(args);
     }
     
-    public void PrintGraph()
+    public void PrintGraph(Type startNode)
     {
-        _dependencyGraph.PrintGraph();
+        _dependencyGraph.PrintGraph(startNode);
     }
 }
