@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinClassLibrary", "DinClassLibrary\DinClassLibrary.csproj", "{235484C2-15D8-4B36-B728-946336D13B2E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{0D41748E-4273-413F-BAE9-56A8461BE90E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{235484C2-15D8-4B36-B728-946336D13B2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{235484C2-15D8-4B36-B728-946336D13B2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{235484C2-15D8-4B36-B728-946336D13B2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D41748E-4273-413F-BAE9-56A8461BE90E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D41748E-4273-413F-BAE9-56A8461BE90E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D41748E-4273-413F-BAE9-56A8461BE90E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D41748E-4273-413F-BAE9-56A8461BE90E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
