@@ -1,0 +1,11 @@
+﻿### Getting all numbers
+GET http://localhost:9999/api/numbers
+
+### Deleting 4
+DELETE http://localhost:9999/api/numbers/4
+
+### Adding 5
+POST http://localhost:9999/api/numbers/5
+
+### Getting all numbers
+GET http://localhost:9999/api/numbers

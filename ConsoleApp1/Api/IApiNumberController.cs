@@ -1,6 +1,6 @@
 ﻿namespace ConsoleApp1.Api;
 
-public interface INumberController
+public interface IApiNumberController
 {
     public ICollection<int> GetAll();
     public void Post(int id);

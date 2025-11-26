@@ -6,18 +6,13 @@ var container = new DinContainer();
 
 container.Register(typeof(ILogger), typeof(ConsoleLogger));
 container.Register(typeof(INumberRepository), typeof(NumberInMemoryRepository));
-container.Register(typeof(INumberController), typeof(NumberController));
+container.Register(typeof(IApiNumberController), typeof(ApiNumberController));
 
-Console.WriteLine("Container is ready. Resolving 'mainApp'...");
+Console.WriteLine("Container is ready. Resolving controller and starting HTTP listener...");
 
-var numberController = (INumberController) container.GetService(typeof(INumberController));
+var numberController = (IApiNumberController) container.GetService(typeof(IApiNumberController));
 
-container.PrintGraph(typeof(INumberController));
+container.PrintGraph(typeof(IApiNumberController));
 
-
-Console.WriteLine("Getting all numbers: " + string.Join(", ", numberController.GetAll()));
-Console.WriteLine("Deleting 4: ");
-numberController.Delete(4);
-Console.WriteLine("Adding 5: ");
-numberController.Post(5);
-Console.WriteLine("Getting all numbers: " + string.Join(", ", numberController.GetAll()));
+var http = new DinHttpListener(numberController);
+http.Start();
