@@ -1,5 +1,5 @@
-﻿using QuikGraph;
-using QuikGraph.Algorithms;
+﻿using System.Text;
+using QuikGraph;
 
 namespace DinClassLibrary;
 
@@ -17,11 +17,44 @@ public class DinDependencyGraph
         _graph.AddEdge(new Edge<Type>(source, target));
     }
     
+    public void CheckForCycles()
+    {
+        // Simple unoptimized DFS from every node to detect cycles
+        foreach (var vertex in _graph.Vertices)
+        {
+            CheckVertexForCycle(vertex, new List<Type>());
+        }
+    }
+
+    private void CheckVertexForCycle(Type current, List<Type> path)
+    {
+        // If the current node is already in the recursion path, we found a cycle
+        if (path.Contains(current))
+        {
+            var cycleStartIndex = path.IndexOf(current);
+            var cyclePath = path.Skip(cycleStartIndex).ToList();
+            cyclePath.Add(current); // Close the loop visually
+
+            var cycleString = string.Join(" -> ", cyclePath.Select(t => t.Name));
+            throw new InvalidOperationException($"Circular dependency detected: {cycleString}");
+        }
+
+        path.Add(current);
+
+        foreach (var edge in _graph.OutEdges(current))
+        {
+            CheckVertexForCycle(edge.Target, path);
+        }
+
+        // Backtrack
+        path.RemoveAt(path.Count - 1);
+    }
+
     public void PrintGraph(Type startNode)
     {
         Console.WriteLine("Dependency graph:\n============");
         
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         var printedVerticesCount = 0;
         
         PrintVertex(startNode, 0, sb, ref printedVerticesCount);

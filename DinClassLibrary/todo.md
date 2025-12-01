@@ -9,9 +9,8 @@ Currently, you have the **basic skeleton of the resolution engine** and a **hard
 ### Todo List Evaluation
 
 #### 1. Assembly Scanning
-- [ ] **Not Done**
-    - **Analysis:** Your `DinContainer` currently requires manual registration via `Register(Type serviceType, Type implementationType)`. There is no code that automatically scans an assembly for types.
-    - **How to do it:** Create a method like `RegisterControllers(Assembly assembly)`. Iterate through `assembly.GetTypes()`, check if they follow a convention (e.g., inherit from a `Controller` base class or end with "Controller"), and call `Register` for each.
+- [x] **Done**
+    - **Location:** `RegisterAssembly` inside `DinContainer.`
 
 #### 2. Singleton Support
 - [ ] **Not Done**
@@ -42,12 +41,15 @@ Currently, you have the **basic skeleton of the resolution engine** and a **hard
     - **Analysis:** There is no code related to `DispatchProxy`, `RealProxy`, or dynamic class generation.
     - **How to do it:** Look into `System.Reflection.DispatchProxy`. You need to wrap the service instance in a proxy that intercepts method calls to print the Logs/Timing before and after the actual method execution.
 
-#### 6. Dependency Graph & Cycle Detection
-- [~] **Partially Done**
-    - **Location:** `DinDependencyGraph.cs` and `DinContainer.cs`.
-    - **Analysis:** You are successfully **building** the graph using QuikGraph (`_dependencyGraph.AddEdge` inside `GetService`).
-    - **Missing:** You are **not detecting** cycles. If Service A depends on B, and B depends on A, your `GetService` will crash with a `StackOverflowException` before the graph is fully updated or analyzed.
-    - **How to do it:** You need to check for cycles *before* or *during* resolution. Since you are using QuikGraph, you can use built-in algorithms (like `DirectedAcyclicGraph` checks) or keep a `Stack<Type>` of the current resolution chain to detect if you see the same type twice in the same branch.
+#### 6\. Dependency Graph & Cycle Detection
+- [x] **Done** (Logic Implemented)
+    - **Location:** `DinDependencyGraph.cs`
+    - **Analysis:** You have added `CheckForCycles` and `CheckVertexForCycle`. This logic correctly traverses the graph, tracks the recursion stack (`path`), and identifies if a node repeats. It also generates a helpful error message showing the exact cycle path.
+    - **What is left (Integration):** While the *logic* exists, you need to decide **when** to call it.
+        - **The Catch:** Currently, you build the graph *inside* `GetService`. If a cycle exists (A -\> B -\> A), `GetService` will crash with a generic `StackOverflowException` (infinite loop) **before** the graph is finished building, meaning `CheckForCycles` might never get a chance to run.
+        - **Fix:** You must either:
+            1.  **Pre-scan:** Build the whole graph at startup (using Reflection/Assembly Scanning) and call `CheckForCycles` *before* the app starts running.
+            2.  **Runtime Check:** Integrate this "path" logic directly into your `GetService` method (pass a `Stack<Type>` as an argument to `GetService` to catch it live).
 
 #### 7. Logging Framework
 - [ ] **Not Done**

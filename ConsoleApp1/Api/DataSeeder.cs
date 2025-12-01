@@ -1,6 +1,6 @@
 ﻿namespace ConsoleApp1.Api;
 
-public class DataSeeder
+public static class DataSeeder
 {
     public static HashSet<int> Seed()
     {
