@@ -5,8 +5,6 @@ Je bouwt een DI Container die gelijkaardig is aan Microsoft.Extensions.Dependenc
 De NuGet package en namespace ‘Microsoft.Extensions.DependencyInjection’ is slechts een richtlijn. Je hoeft *niet* dezelfde namen te gebruiken (van klassen, methodes, ...) en mag bvb. ook het bootstrapping-mechanisme op een andere manier in werking laten treden.  
 Daarnaast hoef je niet de volledige featureset te bouwen, maar wel de opgesomde features.
 
-**Variant**: je mag deze opdracht ook ander opvatten door een .NET implementatie bouwen van het Spring framework. M.a.w., een volledig op annotaties gebaseerde DI Container in .NET. Spreek dit duidelijk vooraf af met je docent. In dit geval baseer je je verder op de beschrijving in ‘DI Container \- JVM’.
-
 # Opdracht
 
  - [ ] Je ondersteunt assembly scanning voor bepaalde sets van klassen, zoals bvb. controllers (Web) of hubs (SignalR). Je kan de scanning baseren op een annotatie, een superklasse of een klassenaam prefix/suffix.  
