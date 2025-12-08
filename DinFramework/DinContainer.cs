@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class DinContainer
+public class DinContainer : IServiceProvider
 {
     private static readonly Dictionary<Type, Type> Registry = new();
 
@@ -108,6 +108,11 @@ public class DinContainer
         // Create the object with the resolved arguments
         Console.WriteLine($"Creating instance of service: {serviceType.Name}");
         return constructor.Invoke(args);
+    }
+    
+    object? IServiceProvider.GetService(Type serviceType)
+    {
+        return GetService(serviceType);
     }
 
     public static void PrintGraph(Type startNode)
