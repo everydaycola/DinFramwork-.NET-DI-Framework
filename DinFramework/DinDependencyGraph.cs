@@ -7,6 +7,11 @@ public class DinDependencyGraph
 {
     private readonly BidirectionalGraph<Type, Edge<Type>> _graph = new();
     
+    public void Clear()
+    {
+        _graph.Clear();
+    }
+    
     public void AddVertex(Type vertex)
     {
         _graph.AddVertex(vertex);
@@ -14,6 +19,9 @@ public class DinDependencyGraph
     
     public void AddEdge(Type source, Type target)
     {
+        // Ensure vertices exist before adding the edge
+        _graph.AddVertex(source);
+        _graph.AddVertex(target);
         _graph.AddEdge(new Edge<Type>(source, target));
     }
     

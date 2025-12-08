@@ -120,9 +120,13 @@ public class DinContainer
         {
             var parameterType = parameters[i].ParameterType;
             Console.WriteLine($"Resolving dependency parameter: {parameterType.Name} for service: {serviceType.Name}");
+            // First, record the dependency edge and check for cycles before attempting recursion
+            DependencyGraph.AddEdge(serviceType, parameterType);
+            // This will throw immediately if a cycle is detected, preventing deep recursion/StackOverflow
+            DependencyGraph.CheckForCycles();
+
             // Recursive call: Resolve the dependency
             args[i] = GetService(parameterType);
-            DependencyGraph.AddEdge(serviceType, parameterType);
         }
 
         // Create the object with the resolved arguments
