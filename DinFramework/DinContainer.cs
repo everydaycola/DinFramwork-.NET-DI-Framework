@@ -103,8 +103,8 @@ public class DinContainer
                     Console.WriteLine(c.ToString());
                 }
 
-                // todo throw better exception
-                throw new Exception($"Multiple non-default constructors found for: {serviceType.Name}");
+                // Throw specific ambiguous constructor exception
+                throw new DinAmbiguousConstructorException(serviceType);
             }
         }
 
