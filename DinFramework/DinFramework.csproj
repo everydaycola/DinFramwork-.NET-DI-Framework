@@ -12,4 +12,8 @@
       <PackageReference Include="QuikGraph" Version="2.5.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="attributes\" />
+    </ItemGroup>
+
 </Project>

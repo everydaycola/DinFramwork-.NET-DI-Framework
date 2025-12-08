@@ -22,7 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ConsoleApp1\ConsoleApp1.csproj" />
-      <ProjectReference Include="..\DinClassLibrary\DinClassLibrary.csproj" />
+      <ProjectReference Include="..\DinFramework\DinFramework.csproj" />
     </ItemGroup>
 
 </Project>
