@@ -9,6 +9,7 @@ using System.Linq;
 public class DinContainer
 {
     private static readonly Dictionary<Type, Type> Registry = new();
+    private static readonly Dictionary<Type, object> Instances = new();
 
     private static readonly DinDependencyGraph DependencyGraph = new();
 
@@ -43,13 +44,27 @@ public class DinContainer
         Console.WriteLine(
             $"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
         Registry[serviceType] = implementationType;
+        // If re-registering a service, drop any existing instance so the next resolve creates the new mapping
+        Instances.Remove(serviceType);
         DependencyGraph.AddVertex(serviceType);
+    }
+
+    // Convenience generic registration for singletons
+    public static void RegisterUnique<TInterface, TImplementation>() where TImplementation : TInterface
+    {
+        Register(typeof(TInterface), typeof(TImplementation));
     }
 
     // 3. Resolution: The recursive magic
     public static object GetService(Type serviceType)
     {
         Console.WriteLine($"Resolving service: {serviceType.Name}");
+        // Return cached singleton if available
+        if (Instances.TryGetValue(serviceType, out var existing))
+        {
+            Console.WriteLine($"Returning cached instance of service: {serviceType.Name}");
+            return existing;
+        }
         // Validation
         if (!Registry.TryGetValue(serviceType, out var registryValue))
         {
@@ -70,10 +85,15 @@ public class DinContainer
         switch (nonDefaultConstructors.Count)
         {
             case 0:
-                return defaultConstructor.Count == 0
+                if (defaultConstructor.Count == 0)
+                {
                     // todo throw better exception
-                    ? throw new Exception($"No constructor found for: {serviceType.Name}")
-                    : defaultConstructor[0].Invoke(null);
+                    throw new Exception($"No constructor found for: {serviceType.Name}");
+                }
+                Console.WriteLine($"Creating instance of service (default ctor): {serviceType.Name}");
+                var inst = defaultConstructor[0].Invoke(null);
+                Instances[serviceType] = inst;
+                return inst;
             case >= 2:
             {
                 Console.WriteLine($"Multiple non-default constructors found for: {serviceType.Name}");
@@ -107,7 +127,16 @@ public class DinContainer
 
         // Create the object with the resolved arguments
         Console.WriteLine($"Creating instance of service: {serviceType.Name}");
-        return constructor.Invoke(args);
+        var instance = constructor.Invoke(args);
+        // Cache instance as singleton for the requested service type
+        Instances[serviceType] = instance;
+        return instance;
+    }
+
+    // Convenience generic resolver
+    public static T Resolve<T>()
+    {
+        return (T)GetService(typeof(T));
     }
 
     public static void PrintGraph(Type startNode)
