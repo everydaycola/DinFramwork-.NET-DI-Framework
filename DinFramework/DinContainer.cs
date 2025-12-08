@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using DinClassLibrary.Attributes;
 
 namespace DinClassLibrary;
 
@@ -103,7 +104,6 @@ public class DinContainer
                     Console.WriteLine(c.ToString());
                 }
 
-                // Throw specific ambiguous constructor exception
                 throw new DinAmbiguousConstructorException(serviceType);
             }
         }
@@ -151,5 +151,47 @@ public class DinContainer
     public static void CheckForCycles()
     {
         DependencyGraph.CheckForCycles();
+    }
+    
+    public static void StartApiControllersFromAssembly(Assembly assembly)
+    {
+        
+        var controllers = new List<object>();
+        var firstControllerServiceType = new List<Type>();
+        var types = assembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic && t.GetCustomAttribute<DinApiControllerAttribute>() != null)
+            .ToList();
+
+        
+        foreach (var t in types)
+        {
+            // Find a registered service mapping that points to this implementation type
+            var mapping = Registry.FirstOrDefault(kv => kv.Value == t);
+            if (mapping.Key != null)
+            {
+                try
+                {
+                    var instance = GetService(mapping.Key);
+                    controllers.Add(instance);
+                    // Remember the interface (service) type for dependency graph printing
+                    firstControllerServiceType.Add(mapping.Key);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ResolveApiControllers] Failed to resolve controller {t.Name}: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[ResolveApiControllers] No registered service mapping found for controller {t.FullName}. Skipping.");
+            }
+        }
+        
+        foreach (var iController in firstControllerServiceType)
+        {
+            PrintGraph(iController);
+        }
+
+        new DinHttpListener(controllers).Start();
     }
 }

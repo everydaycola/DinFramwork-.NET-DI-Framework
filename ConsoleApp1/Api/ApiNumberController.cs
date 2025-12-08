@@ -1,7 +1,9 @@
 ﻿using ConsoleApp1.Infrastructure;
+using DinClassLibrary.Attributes;
 
 namespace ConsoleApp1.Api;
 
+[DinApiController("numbers")]
 public class ApiNumberController(INumberRepository repository, ILogger logger) : IApiNumberController
 {
     public ICollection<int> GetAll()

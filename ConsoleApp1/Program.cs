@@ -1,5 +1,4 @@
-﻿using ConsoleApp1.Api;
-using DinClassLibrary;
+﻿using DinClassLibrary;
 
 
 DinContainer.RegisterAssembly(typeof(Program).Assembly);
@@ -10,12 +9,7 @@ DinContainer.RegisterAssembly(typeof(Program).Assembly);
 
 DinContainer.CheckForCycles();
     
-Console.WriteLine("Container is ready. Resolving controller and starting HTTP listener...");
+Console.WriteLine("Container is ready. Resolving controllers and starting HTTP listener...");
 
+DinContainer.StartApiControllersFromAssembly(typeof(Program).Assembly);
 
-var numberController = (IApiNumberController) DinContainer.GetService(typeof(IApiNumberController));
-
-DinContainer.PrintGraph(typeof(IApiNumberController));
-
-var http = new DinHttpListener(numberController);
-http.Start();

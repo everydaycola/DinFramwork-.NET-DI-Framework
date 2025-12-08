@@ -73,7 +73,7 @@ public class DinDependencyGraph
         Console.Write(sb.ToString());
     }
     
-    private void PrintVertex(Type vertex, int level, System.Text.StringBuilder sb, ref int count)
+    private void PrintVertex(Type vertex, int level, StringBuilder sb, ref int count)
     {
         count++;
         sb.AppendLine($"{new string(' ', level * 2)}├─ {vertex.Name}");
