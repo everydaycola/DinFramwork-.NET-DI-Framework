@@ -15,25 +15,28 @@ public class DinHttpListener
         {
             var type = ctrl.GetType();
 
-            // If it's a proxy, we need the underlying target type to find attributes
+            // for logging interception, the classes are made as a proxy.
+            // these proxies don't have the original annotations, so you need the original class as well. 
             if (ctrl is IProxyTargetAccessor accessor)
             {
                 type = accessor.DynProxyGetTarget().GetType();
             }
 
+            // get the attribute
             var apiAttr = type.GetCustomAttributes(typeof(DinApiControllerAttribute), true)
                 .Cast<DinApiControllerAttribute>()
                 .FirstOrDefault();
 
-            if (apiAttr == null)
-                continue; // not an API controller; skip
-
+            if (apiAttr == null) continue; // not an API controller: skip
             
+            // get the value of the annotation
             var key = apiAttr.Segment;
-            if (_controllersBySegment.ContainsKey(key))
+            
+            // register the controllers by api segment
+            if (_controllersBySegment.TryGetValue(key, out var value))
                 throw new InvalidOperationException(
-                    $"Duplicate API segment '{key}' found for controllers '{_controllersBySegment[key].GetType().Name}' and '{type.Name}'. Segments must be unique.");
-
+                    $"Duplicate API segment '{key}' found for controllers '{value.GetType().Name}' and '{type.Name}'. Segments must be unique.");
+            
             _controllersBySegment[key] = ctrl;
         }
         _listener.Prefixes.Add(prefix);
@@ -46,6 +49,7 @@ public class DinHttpListener
 
         while (true)
         {
+            // wait for a request
             var context = _listener.GetContext();
             try
             {

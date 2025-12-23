@@ -27,6 +27,7 @@ public class DinContainer
         var interfaces = types.Where(t => t.IsInterface).ToList();
         var classes = types.Where(t => t.IsClass && !t.IsAbstract && t.IsPublic).ToList();
 
+        // 1. Register classes by their interfaces
         foreach (var intf in interfaces)
         {
             var impls = classes.Where(c => intf.IsAssignableFrom(c)).ToList();
@@ -37,12 +38,19 @@ public class DinContainer
                     Register(intf, impls[0]);
                     break;
                 case 0:
-                    DinLogger.LogError($"[AssemblyScan] No implementation found for interface {intf.FullName} in {assembly.GetName().Name}");
+                    // DinLogger.LogDebug($"[AssemblyScan] No implementation found for interface {intf.FullName} in {assembly.GetName().Name}");
                     break;
                 default:
                     DinLogger.LogError($"[AssemblyScan] Multiple implementations for interface {intf.FullName}: {string.Join(", ", impls.Select(t => t.FullName))}. Skipping auto-registration.");
                     break;
             }
+        }
+
+        // 2. Register classes that are NOT yet registered (standalone services/hubs/controllers)
+        foreach (var cls in classes
+                     .Where(cls => !Registry.ContainsKey(cls)))
+        {
+            Register(cls, cls);
         }
     }
 
@@ -53,7 +61,7 @@ public class DinContainer
             $"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
         Registry[serviceType] = implementationType;
         // If re-registering a service, drop any existing instance and cached plan
-        Instances.Remove(serviceType);
+        Instances.Remove(implementationType);
         ConstructorCache.Remove(implementationType);
         DependencyGraph.AddVertex(serviceType);
     }
@@ -68,12 +76,6 @@ public class DinContainer
     public static object GetService(Type serviceType)
     {
         DinLogger.LogInfo($"Resolving service: {serviceType.Name}");
-        // Return cached singleton if available
-        if (Instances.TryGetValue(serviceType, out var existing))
-        {
-            DinLogger.LogInfo($"Returning cached instance of service: {serviceType.Name}");
-            return existing;
-        }
 
         // Validation
         if (!Registry.TryGetValue(serviceType, out var registryValue))
@@ -81,6 +83,13 @@ public class DinContainer
             DinLogger.LogError($"Failed to resolve service: {serviceType.Name} - Not registered");
             // todo throw better exception
             throw new Exception($"Service not registered: {serviceType.Name}");
+        }
+
+        // Return cached singleton if available (Keyed by implementation type)
+        if (Instances.TryGetValue(registryValue, out var existing))
+        {
+            DinLogger.LogInfo($"Returning cached instance of service implementation: {registryValue.Name}");
+            return existing;
         }
 
         if (ConstructorCache.TryGetValue(registryValue, out var plan))
@@ -165,8 +174,8 @@ public class DinContainer
             instance = ProxyGenerator.CreateInterfaceProxyWithTarget(serviceType, instance, new LoggingInterceptor());
         }
 
-        // Cache instance as singleton for the requested service type
-        Instances[serviceType] = instance;
+        // Cache instance as singleton for the implementation type
+        Instances[implementationType] = instance;
         return instance;
     }
 
