@@ -1,16 +1,16 @@
 ﻿# DinFramework
 
-DinFramework is a lightweight, fast Dependency Injection (DI) container for .NET, featuring assembly scanning, constructor injection, cycle detection, and dynamic interception.
+DinFramework is a lightweight Dependency Injection (DI) container for .NET, featuring assembly scanning, constructor injection, cycle detection, and dynamic interception.
 
 ## Features
 
 - **Singleton Registration:** Support for adding singletons to the container.
 - **Assembly Scanning:** Automatically register services and controllers from an assembly.
-- **Constructor Injection:** Automatically resolve dependencies through constructors, with preference for non-default constructors.
-- **Cycle Detection:** Automatically detects cyclic dependencies using a dependency graph and throws informative exceptions.
+- **Constructor Injection:** Resolve dependencies through constructors, with preference for non-default constructors.
+- **Cycle Detection:** Detects cyclic dependencies using a dependency graph and throws informative exceptions.
 - **API Controller Support:** Built-in HTTP listener that routes requests to classes marked with `[DinApiController]`.
 - **Dynamic Interception (AOP):** Add cross-cutting concerns like logging using the `[DinAutoLogging]` attribute and Castle DynamicProxy.
-- **High Performance:** Uses caching for constructor metadata to minimize reflection overhead after initial resolution.
+- **Metadata Caching:** Uses caching for constructor metadata to minimize reflection overhead.
 
 ## Usage Guide
 
@@ -24,8 +24,8 @@ using DinClassLibrary;
 // Map interface to implementation
 DinContainer.RegisterUnique<INumberRepository, NumberInMemoryRepository>();
 
-// Or use non-generic version
-DinContainer.Register(typeof(ILogger), typeof(ConsoleLogger));
+// Or use the non-generic version
+DinContainer.Register(typeof(IMyService), typeof(MyService));
 ```
 
 ### 2. Assembly Scanning
@@ -52,20 +52,19 @@ Mark your classes with `[DinApiController]` and start the HTTP listener:
 [DinApiController("numbers")]
 public class ApiNumberController
 {
-    public IEnumerable<int> Get() => new[] { 1, 2, 3 };
-    
-    public int Get(int id) => id;
+    // Routing is convention-based: GET /api/numbers/GetAll
+    public IEnumerable<int> GetAll() => new[] { 1, 2, 3 };
 }
 
 // In Program.cs:
 DinContainer.StartApiControllersFromAssembly(typeof(Program).Assembly);
 ```
 
-The listener will be available at `http://localhost:9999/api/numbers`.
+The listener defaults to `http://localhost:9999/api/`.
 
 ### 5. Dynamic Interception (Logging)
 
-Add the `[DinAutoLogging]` attribute to a class or method to automatically log calls:
+Add the `[DinAutoLogging]` attribute to an interface implementation to automatically log method calls:
 
 ```csharp
 [DinAutoLogging]
@@ -83,7 +82,7 @@ public class MyService : IMyService
 
 ### Compiling the Code
 
-To compile the entire solution, run the following command in the root directory:
+To compile the solution, run the following command in the root directory:
 
 ```bash
 dotnet build
@@ -94,14 +93,14 @@ dotnet build
 The demo application starts an HTTP server demonstrating the DI container and API routing.
 
 ```bash
-dotnet run --project ConsoleApp1
+dotnet run --project DemoConsoleApplication
 ```
 
-Once running, you can access the API at `http://localhost:9999/api/numbers`.
+Once running, you can access the API at `http://localhost:9999/api/numbers/GetAll`.
 
 ### Running the Tests
 
-To execute the unit tests and verify the framework's functionality:
+To execute the unit tests:
 
 ```bash
 dotnet test
