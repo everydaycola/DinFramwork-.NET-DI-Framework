@@ -1,26 +1,28 @@
 ﻿using ConsoleApp1.Infrastructure;
+using DinClassLibrary;
 using DinClassLibrary.Attributes;
 
 namespace ConsoleApp1.Api;
 
 [DinApiController("numbers")]
-public class ApiNumberController(INumberRepository repository, ILogger logger) : IApiNumberController
+[DinAutoLogging]
+public class ApiNumberController(INumberRepository repository) : IApiNumberController
 {
     public ICollection<int> GetAll()
     {
-        logger.Log("Getting all numbers");
+        DinLogger.Log("Getting all numbers");
         return repository.ReadAll();
     }
     
     public void Post(int id)
     {
-        logger.Log($"Adding a new number: {id}");
+        DinLogger.Log($"Adding a new number: {id}");
         repository.Create(id);
     }
     
     public void Delete(int id)
     {
-        logger.Log($"Deleting number: {id}");
+        DinLogger.Log($"Deleting number: {id}");
         repository.Delete(id);
     }
 }

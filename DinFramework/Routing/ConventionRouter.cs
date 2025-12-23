@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 using DinClassLibrary.Attributes;
+using Castle.DynamicProxy;
 
 namespace DinClassLibrary.Routing;
 
@@ -14,6 +15,13 @@ internal static class ConventionRouter
         var response = context.Response;
 
         var type = controller.GetType();
+        
+        // Handle proxies
+        if (controller is IProxyTargetAccessor accessor)
+        {
+            type = accessor.DynProxyGetTarget().GetType();
+        }
+
         var apiAttr = type.GetCustomAttribute<DinApiControllerAttribute>();
         if (apiAttr == null)
             return false;
@@ -68,18 +76,38 @@ internal static class ConventionRouter
 
         try
         {
-            var result = target.Invoke(controller, args);
+            // If it's a proxy, we should use the proxy to invoke so that interception works
+            // But 'target' MethodInfo is from the implementation type.
+            // If it's an interface proxy, we should find the corresponding method on the interface/proxy
+            // Actually, if we use the proxy as the target for Invoke, and the MethodInfo is from the implementation type,
+            // it might fail if it's an interface proxy.
+            
+            var invokeTarget = controller;
+            var methodToInvoke = target;
+
+            if (controller is IProxyTargetAccessor acc)
+            {
+                // Find the method on the proxy/interface that matches the target method
+                // Since it's an interface proxy, we look for the method in the interfaces
+                var interfaces = controller.GetType().GetInterfaces();
+                foreach (var iface in interfaces)
+                {
+                    var m = iface.GetMethod(target.Name, target.GetParameters().Select(p => p.ParameterType).ToArray());
+                    if (m != null)
+                    {
+                        methodToInvoke = m;
+                        break;
+                    }
+                }
+            }
+
+            var result = methodToInvoke.Invoke(invokeTarget, args);
 
             if (target.ReturnType == typeof(void))
             {
-                // Choose defaults like before
                 if (httpMethod == "POST")
                 {
                     ResponseWriter.WriteCreated(response);
-                }
-                else if (httpMethod == "DELETE")
-                {
-                    ResponseWriter.WriteNoContent(response);
                 }
                 else
                 {
@@ -100,18 +128,25 @@ internal static class ConventionRouter
         }
         catch (TargetInvocationException ex) when (ex.InnerException is ArgumentException argEx)
         {
-            // Map common patterns from demo
-            if (httpMethod == "POST")
-                ResponseWriter.WriteError(response, 409, argEx.Message);
-            else if (httpMethod == "DELETE")
-                ResponseWriter.WriteError(response, 404, argEx.Message);
-            else
-                ResponseWriter.WriteError(response, 400, "Bad Request");
+            switch (httpMethod)
+            {
+                // Map common patterns from demo
+                case "POST":
+                    ResponseWriter.WriteError(response, 409, argEx.Message);
+                    break;
+                case "DELETE":
+                    ResponseWriter.WriteError(response, 404, argEx.Message);
+                    break;
+                default:
+                    ResponseWriter.WriteError(response, 400, "Bad Request");
+                    break;
+            }
+
             return true;
         }
     }
 
-    private static string? InferHttpMethodFromName(string name)
+    private static string InferHttpMethodFromName(string name)
     {
         if (name.StartsWith("Get", StringComparison.OrdinalIgnoreCase)) return "GET";
         if (name.StartsWith("Post", StringComparison.OrdinalIgnoreCase)) return "POST";
@@ -130,8 +165,7 @@ internal static class ConventionRouter
         {
             if (m.IsSpecialName) // skip property getters/setters
                 continue;
-            var verb = InferHttpMethodFromName(m.Name);
-            if (verb == null)
+            if (InferHttpMethodFromName(m.Name) == null)
             {
                 throw new InvalidOperationException($"Method '{m.Name}' in controller '{type.Name}' must start with an HTTP verb (GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD).");
             }

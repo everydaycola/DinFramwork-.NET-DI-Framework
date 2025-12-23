@@ -1,5 +1,8 @@
 ﻿using System.Reflection;
 using DinClassLibrary.Attributes;
+using Castle.DynamicProxy;
+using DinClassLibrary.Logging;
+using DinClassLibrary.Routing;
 
 namespace DinClassLibrary;
 
@@ -13,6 +16,7 @@ public class DinContainer
     private static readonly Dictionary<Type, object> Instances = new();
 
     private static readonly DinDependencyGraph DependencyGraph = new();
+    private static readonly ProxyGenerator ProxyGenerator = new();
 
     public static void RegisterAssembly(Assembly assembly)
     {
@@ -30,10 +34,10 @@ public class DinContainer
                     Register(intf, impls[0]);
                     break;
                 case 0:
-                    Console.WriteLine($"[AssemblyScan] No implementation found for interface {intf.FullName} in {assembly.GetName().Name}");
+                    DinLogger.LogError($"[AssemblyScan] No implementation found for interface {intf.FullName} in {assembly.GetName().Name}");
                     break;
                 default:
-                    Console.WriteLine($"[AssemblyScan] Multiple implementations for interface {intf.FullName}: {string.Join(", ", impls.Select(t => t.FullName))}. Skipping auto-registration.");
+                    DinLogger.LogError($"[AssemblyScan] Multiple implementations for interface {intf.FullName}: {string.Join(", ", impls.Select(t => t.FullName))}. Skipping auto-registration.");
                     break;
             }
         }
@@ -42,7 +46,7 @@ public class DinContainer
     // 2. Registration
     public static void Register(Type serviceType, Type implementationType)
     {
-        Console.WriteLine(
+        DinLogger.LogInfo(
             $"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
         Registry[serviceType] = implementationType;
         // If re-registering a service, drop any existing instance so the next resolve creates the new mapping
@@ -59,17 +63,17 @@ public class DinContainer
     // 3. Resolution: The recursive magic
     public static object GetService(Type serviceType)
     {
-        Console.WriteLine($"Resolving service: {serviceType.Name}");
+        DinLogger.LogInfo($"Resolving service: {serviceType.Name}");
         // Return cached singleton if available
         if (Instances.TryGetValue(serviceType, out var existing))
         {
-            Console.WriteLine($"Returning cached instance of service: {serviceType.Name}");
+            DinLogger.LogInfo($"Returning cached instance of service: {serviceType.Name}");
             return existing;
         }
         // Validation
         if (!Registry.TryGetValue(serviceType, out var registryValue))
         {
-            Console.WriteLine($"Failed to resolve service: {serviceType.Name} - Not registered");
+            DinLogger.LogError($"Failed to resolve service: {serviceType.Name} - Not registered");
             // todo throw better exception
             throw new Exception($"Service not registered: {serviceType.Name}");
         }
@@ -91,17 +95,26 @@ public class DinContainer
                     // todo throw better exception
                     throw new Exception($"No constructor found for: {serviceType.Name}");
                 }
-                Console.WriteLine($"Creating instance of service (default ctor): {serviceType.Name}");
+                DinLogger.LogInfo($"Creating instance of service (default ctor): {serviceType.Name}");
                 var inst = defaultConstructor[0].Invoke(null);
+
+                // Interception logic for default constructor
+                if (serviceType.IsInterface && (registryValue.GetCustomAttribute<DinAutoLoggingAttribute>() != null ||
+                                                registryValue.GetMethods().Any(m => m.GetCustomAttribute<DinAutoLoggingAttribute>() != null)))
+                {
+                    DinLogger.LogInfo($"Applying interception to service: {serviceType.Name}");
+                    inst = ProxyGenerator.CreateInterfaceProxyWithTarget(serviceType, inst, new LoggingInterceptor());
+                }
+
                 Instances[serviceType] = inst;
                 return inst;
             case >= 2:
             {
-                Console.WriteLine($"Multiple non-default constructors found for: {serviceType.Name}");
+                DinLogger.LogInfo($"Multiple non-default constructors found for: {serviceType.Name}");
                 foreach (var c in nonDefaultConstructors)
                 {
                     // todo test if output is usefull
-                    Console.WriteLine(c.ToString());
+                    DinLogger.LogInfo(c.ToString());
                 }
 
                 throw new DinAmbiguousConstructorException(serviceType);
@@ -119,7 +132,7 @@ public class DinContainer
         for (var i = 0; i < parameters.Length; i++)
         {
             var parameterType = parameters[i].ParameterType;
-            Console.WriteLine($"Resolving dependency parameter: {parameterType.Name} for service: {serviceType.Name}");
+            DinLogger.LogInfo($"Resolving dependency parameter: {parameterType.Name} for service: {serviceType.Name}");
             // First, record the dependency edge and check for cycles before attempting recursion
             DependencyGraph.AddEdge(serviceType, parameterType);
             // This will throw immediately if a cycle is detected, preventing deep recursion/StackOverflow
@@ -130,8 +143,17 @@ public class DinContainer
         }
 
         // Create the object with the resolved arguments
-        Console.WriteLine($"Creating instance of service: {serviceType.Name}");
+        DinLogger.LogInfo($"Creating instance of service: {serviceType.Name}");
         var instance = constructor.Invoke(args);
+
+        // Interception logic
+        if (serviceType.IsInterface && (registryValue.GetCustomAttribute<DinAutoLoggingAttribute>() != null ||
+                                        registryValue.GetMethods().Any(m => m.GetCustomAttribute<DinAutoLoggingAttribute>() != null)))
+        {
+            DinLogger.LogInfo($"Applying interception to service: {serviceType.Name}");
+            instance = ProxyGenerator.CreateInterfaceProxyWithTarget(serviceType, instance, new LoggingInterceptor());
+        }
+
         // Cache instance as singleton for the requested service type
         Instances[serviceType] = instance;
         return instance;
@@ -178,12 +200,12 @@ public class DinContainer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ResolveApiControllers] Failed to resolve controller {t.Name}: {ex.Message}");
+                    DinLogger.LogWarn($"[ResolveApiControllers] Failed to resolve controller {t.Name}: {ex.Message}");
                 }
             }
             else
             {
-                Console.WriteLine($"[ResolveApiControllers] No registered service mapping found for controller {t.FullName}. Skipping.");
+                DinLogger.LogInfo($"[ResolveApiControllers] No registered service mapping found for controller {t.FullName}. Skipping.");
             }
         }
         

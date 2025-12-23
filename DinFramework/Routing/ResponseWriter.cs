@@ -27,12 +27,12 @@ internal static class ResponseWriter
     {
         try
         {
-            Console.WriteLine($"[DinHttpListener Error] {status} {message}");
+            DinLogger.LogError($"[DinHttpListener Error] {status} {message}");
             WriteText(response, status, message);
         }
         catch
         {
-            Console.WriteLine("[DinHttpListener Error] Failed to write error response");
+            DinLogger.LogError("[DinHttpListener Error] Failed to write error response");
         }
     }
 

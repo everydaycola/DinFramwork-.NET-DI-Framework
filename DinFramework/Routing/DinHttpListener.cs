@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using DinClassLibrary.Attributes;
-using DinClassLibrary.Routing;
+using Castle.DynamicProxy;
 
-namespace DinClassLibrary;
+namespace DinClassLibrary.Routing;
 
 public class DinHttpListener
 {
@@ -14,6 +14,13 @@ public class DinHttpListener
         foreach (var ctrl in controllers)
         {
             var type = ctrl.GetType();
+
+            // If it's a proxy, we need the underlying target type to find attributes
+            if (ctrl is IProxyTargetAccessor accessor)
+            {
+                type = accessor.DynProxyGetTarget().GetType();
+            }
+
             var apiAttr = type.GetCustomAttributes(typeof(DinApiControllerAttribute), true)
                 .Cast<DinApiControllerAttribute>()
                 .FirstOrDefault();
@@ -24,7 +31,8 @@ public class DinHttpListener
             
             var key = apiAttr.Segment;
             if (_controllersBySegment.ContainsKey(key))
-                throw new InvalidOperationException($"Duplicate API segment '{key}' found for controllers '{_controllersBySegment[key].GetType().Name}' and '{type.Name}'. Segments must be unique.");
+                throw new InvalidOperationException(
+                    $"Duplicate API segment '{key}' found for controllers '{_controllersBySegment[key].GetType().Name}' and '{type.Name}'. Segments must be unique.");
 
             _controllersBySegment[key] = ctrl;
         }
@@ -34,7 +42,7 @@ public class DinHttpListener
     public void Start()
     {
         _listener.Start();
-        Console.WriteLine("DinHttpListener started on: " + string.Join(", ", _listener.Prefixes));
+        DinLogger.LogInfo("DinHttpListener started on: " + string.Join(", ", _listener.Prefixes));
 
         while (true)
         {
@@ -45,7 +53,7 @@ public class DinHttpListener
             }
             catch (Exception ex)
             {
-                Console.WriteLine("[DinHttpListener Error] " + ex);
+                DinLogger.LogError("[DinHttpListener Error] " + ex);
                 ResponseWriter.WriteError(context.Response, 500, "Internal Server Error");
             }
             finally
@@ -57,23 +65,24 @@ public class DinHttpListener
 
     private void HandleRequest(HttpListenerContext context)
     {
-        var request = context.Request;
-        var response = context.Response;
-
-        var path = request.Url?.AbsolutePath ?? "/";
-        var segments = path.Trim('/')
+        // get the segments of the URL (like ["api", "controller", "method/args"...])
+        var segments = (context.Request.Url?.AbsolutePath ?? "/")
+            .Trim('/')
             .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         // Fast pre-selection by segment using [DinApiController] annotations
-        if (segments.Length >= 2 && segments[0].Equals("api", StringComparison.OrdinalIgnoreCase))
-        {
-            var seg = segments[1];
-            if (_controllersBySegment.TryGetValue(seg, out var controller) 
-                && ConventionRouter.TryHandle(context, controller, segments)) {
-                    return;
-            }
-        }
-        
-        ResponseWriter.WriteError(response, 404, "Not Found");
+        if (
+            // one for api, one for controller, and one for the method/args
+            segments.Length >= 2 
+            // the first segment must be "api"
+            && segments[0].Equals("api") 
+            // the second segment must be a valid controller (also get the controller)
+            && _controllersBySegment.TryGetValue(segments[1], out var controller) 
+            // the third segment must be a valid method. Then execute it
+            && ConventionRouter.TryHandle(context, controller, segments)
+            // if this all succeeds, return
+            ) return;
+        // else, give a 404 for method/controller not found
+        ResponseWriter.WriteError(context.Response, 404, "Not Found");
     }
 }

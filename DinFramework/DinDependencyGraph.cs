@@ -6,17 +6,17 @@ namespace DinClassLibrary;
 public class DinDependencyGraph
 {
     private readonly BidirectionalGraph<Type, Edge<Type>> _graph = new();
-    
+
     public void Clear()
     {
         _graph.Clear();
     }
-    
+
     public void AddVertex(Type vertex)
     {
         _graph.AddVertex(vertex);
     }
-    
+
     public void AddEdge(Type source, Type target)
     {
         // Ensure vertices exist before adding the edge
@@ -24,7 +24,7 @@ public class DinDependencyGraph
         _graph.AddVertex(target);
         _graph.AddEdge(new Edge<Type>(source, target));
     }
-    
+
     public void CheckForCycles()
     {
         // Simple unoptimized DFS from every node to detect cycles
@@ -60,24 +60,28 @@ public class DinDependencyGraph
 
     public void PrintGraph(Type startNode)
     {
-        Console.WriteLine("Dependency graph:\n============");
-        
+        DinLogger.LogInfo("Dependency graph:");
+
         var sb = new StringBuilder();
         var printedVerticesCount = 0;
-        
+
         PrintVertex(startNode, 0, sb, ref printedVerticesCount);
-        
-        Console.WriteLine($"Total vertices: {printedVerticesCount}");
-        Console.WriteLine($"Unique vertices: {_graph.VertexCount}");
-        Console.WriteLine($"Total edges: {_graph.EdgeCount}");
-        Console.Write(sb.ToString());
+
+        DinLogger.LogInfo(
+            $"""
+             
+             Total vertices: {printedVerticesCount}
+             Unique vertices: {_graph.VertexCount}
+             Total edges: {_graph.EdgeCount}
+             {sb}
+             """);
     }
-    
+
     private void PrintVertex(Type vertex, int level, StringBuilder sb, ref int count)
     {
         count++;
         sb.AppendLine($"{new string(' ', level * 2)}├─ {vertex.Name}");
-        
+
         foreach (var edge in _graph.OutEdges(vertex))
         {
             PrintVertex(edge.Target, level + 1, sb, ref count);

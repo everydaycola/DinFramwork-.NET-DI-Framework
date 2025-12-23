@@ -5,7 +5,7 @@ public static class DinLogger
     public static void Log(string message, LogLevel level = LogLevel.Info)
     {
         var time = DateTime.Now.ToString("HH:mm:ss");
-        Console.WriteLine($"[{time}][{level:5}]: {message}");
+        Console.WriteLine($"[{time}][{level}]: {message}");
     }
     
     public static void LogDebug(string message)

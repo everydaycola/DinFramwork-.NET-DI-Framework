@@ -1,30 +1,33 @@
 ﻿using ConsoleApp1.Api;
+using DinClassLibrary;
+using DinClassLibrary.Attributes;
 
 namespace ConsoleApp1.Infrastructure;
 
-public class NumberInMemoryRepository(ILogger logger) : INumberRepository
+[DinAutoLogging]
+public class NumberInMemoryRepository() : INumberRepository
 {
     private readonly HashSet<int> _numbers = DataSeeder.Seed();
     
     public void Create(int number)
     {
-        logger.Log($"Adding a new number: {number}");
+        DinLogger.LogInfo($"Adding a new number: {number}");
         if (_numbers.Add(number)) return;
-        logger.Error($"Number {number} already exists");
+        DinLogger.LogError($"Number {number} already exists");
         throw new ArgumentException("Number already exists");
     }
     
     public ICollection<int> ReadAll()
     {
-        logger.Log($"Reading all numbers");
+        DinLogger.LogInfo("Reading all numbers");
         return _numbers.ToList();
     }
     
     public void Delete(int number)
     {
-        logger.Log($"Deleting number: {number}");
+        DinLogger.LogInfo($"Deleting number: {number}");
         if (_numbers.Remove(number)) return;
-        logger.Error($"Number {number} not found");
+        DinLogger.LogError($"Number {number} not found");
         throw new ArgumentException($"Student with ID {number} not found.");
     }
 }
