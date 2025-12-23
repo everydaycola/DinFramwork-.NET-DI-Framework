@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp1.Api;
+﻿namespace DemoConsoleApplication.Api;
 
 public interface IApiNumberController
 {

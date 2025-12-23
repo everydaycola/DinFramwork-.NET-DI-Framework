@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{1575C91F-BB91-4E27-8BD9-2059F9BBFC09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoConsoleApplication", "DemoConsoleApplication\DemoConsoleApplication.csproj", "{1575C91F-BB91-4E27-8BD9-2059F9BBFC09}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DinFramework", "DinFramework\DinFramework.csproj", "{235484C2-15D8-4B36-B728-946336D13B2E}"
 EndProject

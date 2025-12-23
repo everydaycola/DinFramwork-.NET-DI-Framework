@@ -9,13 +9,15 @@ internal static class ConventionRouter
 {
     private static readonly HashSet<Type> ValidatedControllers = [];
     private static readonly Dictionary<Type, List<RouteInfo>> RouteCache = [];
-    private record RouteInfo(string HttpMethod, MethodInfo Method, int ParameterCount);
+    private sealed record RouteInfo(string HttpMethod, MethodInfo Method, int ParameterCount);
 
     public static bool TryHandle(HttpListenerContext context, object controller, string[] requestSegments)
     {
+        // get the controller type
         var targetType = GetTargetType(controller);
+        // get the annotation
         var apiAttr = targetType.GetCustomAttribute<DinApiControllerAttribute>();
-        
+        // check for a valid annotation and valid api path.
         if (apiAttr == null || !IsValidPath(requestSegments, apiAttr.Segment)) 
             return false;
 
@@ -38,6 +40,7 @@ internal static class ConventionRouter
         }
     }
     
+    // for proxies, we need `DynProxyGetTarget` to get the original type, which is needed to read annotations.
     private static Type GetTargetType(object controller) =>
         controller is IProxyTargetAccessor accessor ? accessor.DynProxyGetTarget().GetType() : controller.GetType();
 
@@ -56,7 +59,7 @@ internal static class ConventionRouter
     {
         var httpMethod = context.Request.HttpMethod.ToUpperInvariant();
         var routes = RouteCache[type];
-        args = Array.Empty<object>();
+        args = [];
 
         if (segments.Length == 2)
         {

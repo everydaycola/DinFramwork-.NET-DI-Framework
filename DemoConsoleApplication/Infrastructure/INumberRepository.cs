@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp1.Infrastructure;
+﻿namespace DemoConsoleApplication.Infrastructure;
 
 public interface INumberRepository
 {

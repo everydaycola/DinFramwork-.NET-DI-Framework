@@ -1,8 +1,8 @@
-﻿using ConsoleApp1.Infrastructure;
+﻿using DemoConsoleApplication.Infrastructure;
 using DinClassLibrary;
 using DinClassLibrary.Attributes;
 
-namespace ConsoleApp1.Api;
+namespace DemoConsoleApplication.Api;
 
 [DinApiController("numbers")]
 [DinAutoLogging]

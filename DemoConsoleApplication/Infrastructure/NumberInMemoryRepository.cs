@@ -1,8 +1,8 @@
-﻿using ConsoleApp1.Api;
+﻿using DemoConsoleApplication.Api;
 using DinClassLibrary;
 using DinClassLibrary.Attributes;
 
-namespace ConsoleApp1.Infrastructure;
+namespace DemoConsoleApplication.Infrastructure;
 
 [DinAutoLogging]
 public class NumberInMemoryRepository() : INumberRepository

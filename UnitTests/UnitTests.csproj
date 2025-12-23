@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ConsoleApp1\ConsoleApp1.csproj" />
+      <ProjectReference Include="..\DemoConsoleApplication\DemoConsoleApplication.csproj" />
       <ProjectReference Include="..\DinFramework\DinFramework.csproj" />
     </ItemGroup>
 
