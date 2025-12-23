@@ -8,142 +8,114 @@ namespace DinClassLibrary.Routing;
 internal static class ConventionRouter
 {
     private static readonly HashSet<Type> ValidatedControllers = [];
+    private static readonly Dictionary<Type, List<RouteInfo>> RouteCache = [];
+    private record RouteInfo(string HttpMethod, MethodInfo Method, int ParameterCount);
 
     public static bool TryHandle(HttpListenerContext context, object controller, string[] requestSegments)
     {
-        var request = context.Request;
-        var response = context.Response;
-
-        var type = controller.GetType();
+        var targetType = GetTargetType(controller);
+        var apiAttr = targetType.GetCustomAttribute<DinApiControllerAttribute>();
         
-        // Handle proxies
-        if (controller is IProxyTargetAccessor accessor)
-        {
-            type = accessor.DynProxyGetTarget().GetType();
-        }
-
-        var apiAttr = type.GetCustomAttribute<DinApiControllerAttribute>();
-        if (apiAttr == null)
+        if (apiAttr == null || !IsValidPath(requestSegments, apiAttr.Segment)) 
             return false;
 
-        // Validate naming conventions once per controller type
-        if (!ValidatedControllers.Contains(type))
-        {
-            ValidateControllerConventions(type);
-            ValidatedControllers.Add(type);
-        }
+        EnsureControllerInitialized(targetType);
 
-        // Expect path like /api/{segment} or /api/{segment}/{id}
-        if (requestSegments.Length is < 2 or > 3)
-            return false;
-
-        if (!requestSegments[0].Equals("api", StringComparison.OrdinalIgnoreCase))
-            return false;
-        if (!requestSegments[1].Equals(apiAttr.Segment, StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        var httpMethod = request.HttpMethod.ToUpperInvariant();
-
-        // Determine parameter binding based on extra segment count
-        var extraCount = requestSegments.Length - 2; // 0 or 1
-        var args = Array.Empty<object>();
-
-        MethodInfo target = null;
-        var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-
-        if (extraCount == 0)
-        {
-            // Match method starting with verb and zero parameters
-            target = methods.FirstOrDefault(m => InferHttpMethodFromName(m.Name) == httpMethod && m.GetParameters().Length == 0);
-        }
-        else // extraCount == 1
-        {
-            var seg = requestSegments[2];
-            // Only support int for now
-            if (!int.TryParse(seg, out var id))
-            {
-                ResponseWriter.WriteError(response, 400, "Invalid id");
-                return true;
-            }
-            target = methods.FirstOrDefault(m => InferHttpMethodFromName(m.Name) == httpMethod
-                                                  && m.GetParameters().Length == 1
-                                                  && m.GetParameters()[0].ParameterType == typeof(int));
-            args = target != null ? new object[] { id } : Array.Empty<object>();
-        }
-
-        if (target == null)
-            return false; // let other mechanisms try
+        if (!TryGetRouteAndArgs(context, requestSegments, targetType, out var route, out var args))
+            return route == null && args == null; // return true if error was already written to response
 
         try
         {
-            // If it's a proxy, we should use the proxy to invoke so that interception works
-            // But 'target' MethodInfo is from the implementation type.
-            // If it's an interface proxy, we should find the corresponding method on the interface/proxy
-            // Actually, if we use the proxy as the target for Invoke, and the MethodInfo is from the implementation type,
-            // it might fail if it's an interface proxy.
-            
-            var invokeTarget = controller;
-            var methodToInvoke = target;
-
-            if (controller is IProxyTargetAccessor acc)
-            {
-                // Find the method on the proxy/interface that matches the target method
-                // Since it's an interface proxy, we look for the method in the interfaces
-                var interfaces = controller.GetType().GetInterfaces();
-                foreach (var iface in interfaces)
-                {
-                    var m = iface.GetMethod(target.Name, target.GetParameters().Select(p => p.ParameterType).ToArray());
-                    if (m != null)
-                    {
-                        methodToInvoke = m;
-                        break;
-                    }
-                }
-            }
-
-            var result = methodToInvoke.Invoke(invokeTarget, args);
-
-            if (target.ReturnType == typeof(void))
-            {
-                if (httpMethod == "POST")
-                {
-                    ResponseWriter.WriteCreated(response);
-                }
-                else
-                {
-                    ResponseWriter.WriteNoContent(response);
-                }
-            }
-            else if (result is ICollection<int> ints)
-            {
-                var json = "[" + string.Join(",", ints) + "]";
-                ResponseWriter.WriteJson(response, json);
-            }
-            else
-            {
-                ResponseWriter.WriteText(response, 200, result?.ToString() ?? string.Empty);
-            }
-
+            var methodToInvoke = ResolveMethodForInvoke(controller, route.Method);
+            var result = methodToInvoke.Invoke(controller, args);
+            SendResponse(context, route.Method, result);
             return true;
         }
         catch (TargetInvocationException ex) when (ex.InnerException is ArgumentException argEx)
         {
-            switch (httpMethod)
-            {
-                // Map common patterns from demo
-                case "POST":
-                    ResponseWriter.WriteError(response, 409, argEx.Message);
-                    break;
-                case "DELETE":
-                    ResponseWriter.WriteError(response, 404, argEx.Message);
-                    break;
-                default:
-                    ResponseWriter.WriteError(response, 400, "Bad Request");
-                    break;
-            }
-
+            HandleException(context, context.Request.HttpMethod.ToUpperInvariant(), argEx);
             return true;
         }
+    }
+    
+    private static Type GetTargetType(object controller) =>
+        controller is IProxyTargetAccessor accessor ? accessor.DynProxyGetTarget().GetType() : controller.GetType();
+
+    private static bool IsValidPath(string[] segments, string segmentAttr) =>
+        segments.Length is >= 2 and <= 3 &&
+        segments[0].Equals("api", StringComparison.OrdinalIgnoreCase) &&
+        segments[1].Equals(segmentAttr, StringComparison.OrdinalIgnoreCase);
+    
+    private static void EnsureControllerInitialized(Type type)
+    {
+        if (ValidatedControllers.Add(type)) ValidateControllerConventions(type);
+        if (!RouteCache.ContainsKey(type)) CacheRoutes(type);
+    }
+    
+    private static bool TryGetRouteAndArgs(HttpListenerContext context, string[] segments, Type type, out RouteInfo route, out object[] args)
+    {
+        var httpMethod = context.Request.HttpMethod.ToUpperInvariant();
+        var routes = RouteCache[type];
+        args = Array.Empty<object>();
+
+        if (segments.Length == 2)
+        {
+            route = routes.FirstOrDefault(r => r.HttpMethod == httpMethod && r.ParameterCount == 0);
+            return route != null;
+        }
+
+        if (!int.TryParse(segments[2], out var id))
+        {
+            ResponseWriter.WriteError(context.Response, 400, "Invalid id");
+            route = null;
+            args = null;
+            return false;
+        }
+
+        route = routes.FirstOrDefault(r => 
+            r.HttpMethod == httpMethod && 
+            r.ParameterCount == 1 && 
+            r.Method.GetParameters()[0].ParameterType == typeof(int));
+        
+        if (route != null) args = [id];
+        return route != null;
+    }
+    
+    private static MethodInfo ResolveMethodForInvoke(object controller, MethodInfo targetMethod)
+    {
+        if (controller is not IProxyTargetAccessor) return targetMethod;
+        
+        var proxyType = controller.GetType();
+        var map = proxyType.GetInterfaceMap(targetMethod.DeclaringType!);
+        var index = Array.IndexOf(map.TargetMethods, targetMethod);
+        return map.InterfaceMethods[index];
+    }
+    
+    private static void SendResponse(HttpListenerContext context, MethodInfo method, object result)
+    {
+        var response = context.Response;
+        if (method.ReturnType == typeof(void))
+        {
+            if (context.Request.HttpMethod.Equals("POST", StringComparison.InvariantCultureIgnoreCase)) 
+                ResponseWriter.WriteCreated(response);
+            else 
+                ResponseWriter.WriteNoContent(response);
+        }
+        else if (result is ICollection<int> ints)
+            ResponseWriter.WriteJson(response, $"[{string.Join(",", ints)}]");
+        else
+            ResponseWriter.WriteText(response, 200, result?.ToString() ?? string.Empty);
+    }
+    
+    private static void HandleException(HttpListenerContext context, string httpMethod, ArgumentException ex)
+    {
+        var statusCode = httpMethod switch
+        {
+            "POST" => 409,
+            "DELETE" => 404,
+            _ => 400
+        };
+        ResponseWriter.WriteError(context.Response, statusCode, statusCode == 400 ? "Bad Request" : ex.Message);
     }
 
     private static string InferHttpMethodFromName(string name)
@@ -160,15 +132,25 @@ internal static class ConventionRouter
 
     private static void ValidateControllerConventions(Type type)
     {
-        var declared = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-        foreach (var m in declared)
+        foreach (var m in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
         {
             if (m.IsSpecialName) // skip property getters/setters
                 continue;
             if (InferHttpMethodFromName(m.Name) == null)
-            {
                 throw new InvalidOperationException($"Method '{m.Name}' in controller '{type.Name}' must start with an HTTP verb (GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD).");
-            }
         }
+    }
+
+    private static void CacheRoutes(Type type)
+    {
+        var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+        var routes = (
+            from m in methods 
+            where !m.IsSpecialName 
+            let httpMethod = InferHttpMethodFromName(m.Name) 
+            where httpMethod != null 
+            select new RouteInfo(httpMethod, m, m.GetParameters().Length)
+            ).ToList();
+        RouteCache[type] = routes;
     }
 }
