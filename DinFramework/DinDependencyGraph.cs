@@ -30,7 +30,7 @@ public class DinDependencyGraph
         // Simple unoptimized DFS from every node to detect cycles
         foreach (var vertex in _graph.Vertices)
         {
-            CheckVertexForCycle(vertex, new List<Type>());
+            CheckVertexForCycle(vertex, []);
         }
     }
 

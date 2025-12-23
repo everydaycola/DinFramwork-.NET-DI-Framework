@@ -21,41 +21,66 @@ public class DinContainer
 
     private record ConstructorPlan(ConstructorInfo Constructor, ParameterInfo[] Parameters);
 
+    private static readonly object Lock = new();
+
+    public static void Clear()
+    {
+        lock (Lock)
+        {
+            Registry.Clear();
+            Instances.Clear();
+            ConstructorCache.Clear();
+            DependencyGraph.Clear();
+        }
+    }
+
     public static void RegisterAssembly(Assembly assembly)
     {
-        var types = assembly.GetTypes();
-        var interfaces = types.Where(t => t.IsInterface).ToList();
-        var classes = types.Where(t => t.IsClass && !t.IsAbstract && t.IsPublic).ToList();
-
-        // 1. Register classes by their interfaces
-        foreach (var intf in interfaces)
+        lock (Lock)
         {
-            var impls = classes.Where(c => intf.IsAssignableFrom(c)).ToList();
+            var types = assembly.GetTypes();
+            var interfaces = types.Where(t => t.IsInterface).ToList();
+            var classes = types.Where(t => t.IsClass && !t.IsAbstract && t.IsPublic).ToList();
 
-            switch (impls.Count)
+            // 1. Register classes by their interfaces
+            foreach (var intf in interfaces)
             {
-                case 1:
-                    Register(intf, impls[0]);
-                    break;
-                case 0:
-                    // DinLogger.LogDebug($"[AssemblyScan] No implementation found for interface {intf.FullName} in {assembly.GetName().Name}");
-                    break;
-                default:
-                    DinLogger.LogError($"[AssemblyScan] Multiple implementations for interface {intf.FullName}: {string.Join(", ", impls.Select(t => t.FullName))}. Skipping auto-registration.");
-                    break;
-            }
-        }
+                var impls = classes.Where(c => intf.IsAssignableFrom(c)).ToList();
 
-        // 2. Register classes that are NOT yet registered (standalone services/hubs/controllers)
-        foreach (var cls in classes
-                     .Where(cls => !Registry.ContainsKey(cls)))
-        {
-            Register(cls, cls);
+                switch (impls.Count)
+                {
+                    case 1:
+                        RegisterInternal(intf, impls[0]);
+                        break;
+                    case 0:
+                        // DinLogger.LogDebug($"[AssemblyScan] No implementation found for interface {intf.FullName} in {assembly.GetName().Name}");
+                        break;
+                    default:
+                        DinLogger.LogError(
+                            $"[AssemblyScan] Multiple implementations for interface {intf.FullName}: {string.Join(", ", impls.Select(t => t.FullName))}. Skipping auto-registration.");
+                        break;
+                }
+            }
+
+            // 2. Register classes that are NOT yet registered (standalone services/hubs/controllers)
+            foreach (var cls in classes
+                         .Where(cls => !Registry.ContainsKey(cls)))
+            {
+                RegisterInternal(cls, cls);
+            }
         }
     }
 
     // 2. Registration
     public static void Register(Type serviceType, Type implementationType)
+    {
+        lock (Lock)
+        {
+            RegisterInternal(serviceType, implementationType);
+        }
+    }
+
+    private static void RegisterInternal(Type serviceType, Type implementationType)
     {
         DinLogger.LogInfo(
             $"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
@@ -74,6 +99,14 @@ public class DinContainer
 
     // 3. Resolution: The recursive magic
     public static object GetService(Type serviceType)
+    {
+        lock (Lock)
+        {
+            return GetServiceInternal(serviceType);
+        }
+    }
+
+    private static object GetServiceInternal(Type serviceType)
     {
         DinLogger.LogInfo($"Resolving service: {serviceType.Name}");
 
@@ -152,7 +185,7 @@ public class DinContainer
             DependencyGraph.CheckForCycles();
 
             // Recursive call: Resolve the dependency
-            args[i] = GetService(parameterType);
+            args[i] = GetServiceInternal(parameterType);
         }
 
         // Create the object with the resolved arguments

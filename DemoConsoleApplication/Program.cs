@@ -1,5 +1,6 @@
 ﻿using DinClassLibrary;
 
+DinLogger.CurrentLevel = DinLogger.LogLevel.Debug;
 
 DinContainer.RegisterAssembly(typeof(Program).Assembly);
 

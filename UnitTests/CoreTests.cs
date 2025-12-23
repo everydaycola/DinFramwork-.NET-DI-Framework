@@ -5,85 +5,134 @@ using Xunit;
 
 namespace UnitTests;
 
-public interface IServiceA { }
-public class ServiceA : IServiceA
+public class CoreTests : IDisposable
 {
-    public ServiceA(IServiceB serviceB) { }
-}
-
-public interface IServiceB { }
-public class ServiceB : IServiceB { }
-
-public interface ICycleA { }
-public class CycleA : ICycleA
-{
-    public CycleA(ICycleB cycleB) { }
-}
-
-public interface ICycleB { }
-public class CycleB : ICycleB
-{
-    public CycleB(ICycleA cycleA) { }
-}
-
-public interface IAmbiguous { }
-public class Ambiguous : IAmbiguous
-{
-    public Ambiguous(IServiceA a) { }
-    public Ambiguous(IServiceB b) { }
-}
-
-public class CoreTests
-{
-    [Fact]
-    public void SimpleResolution_ShouldWork()
+    private readonly TextWriter _originalOutput;
+    
+    public CoreTests()
     {
-        DinContainer.RegisterUnique<IServiceA, ServiceA>();
-        DinContainer.RegisterUnique<IServiceB, ServiceB>();
+        // arrange
+        _originalOutput = Console.Out;
+        DinContainer.Clear();
+    }
 
-        var serviceA = DinContainer.Resolve<IServiceA>();
-        Assert.NotNull(serviceA);
-        Assert.IsType<ServiceA>(serviceA);
+    public void Dispose()
+    {
+        DinContainer.Clear();
+        Console.SetOut(_originalOutput);
+    }
+
+    [Fact]
+    public void MultiLevelResolution_ShouldWork()
+    {
+        // arrange
+        DinContainer.RegisterUnique<IService1, Service1>();
+        DinContainer.RegisterUnique<IService2, Service2>();
+        DinContainer.RegisterUnique<IService3, Service3>();
+
+        // act
+        var service1 = DinContainer.Resolve<IService1>();
+        
+        // assert
+        Assert.NotNull(service1);
+        Assert.IsType<Service1>(service1);
+    }
+
+    [Fact]
+    public void MultiConstructorWithDefault_ShouldPreferNonDefault()
+    {
+        // arrange
+        DinContainer.RegisterUnique<IService2, Service2>();
+        DinContainer.RegisterUnique<IService3, Service3>();
+        DinContainer.Register(typeof(IService1), typeof(DefaultConstructor));
+
+        // act
+        var instance = DinContainer.Resolve<IService1>();
+        
+        // assert
+        Assert.NotNull(instance);
+    }
+
+    [Fact]
+    public void OnlyDefaultConstructor_ShouldWork()
+    {
+        // arrange
+        DinContainer.Register(typeof(IService3), typeof(Service3));
+        
+        // act
+        var instance = DinContainer.Resolve<IService3>();
+        
+        // assert
+        Assert.NotNull(instance);
+    }
+
+    [Fact]
+    public void UnregisteredService_ShouldThrowException()
+    {
+        // act & assert
+        Assert.Throws<DinServiceNotRegisteredException>(() => DinContainer.Resolve<IService1>());
+    }
+
+    [Fact]
+    public void NoPublicConstructor_ShouldThrowException()
+    {
+        // arrange
+        DinContainer.Register(typeof(INoConstructor), typeof(NoConstructor));
+        
+        // act & assert
+        Assert.Throws<DinNoConstructorFoundException>(() => DinContainer.Resolve<INoConstructor>());
     }
 
     [Fact]
     public void CyclicDependency_ShouldThrowException()
     {
-        DinContainer.RegisterUnique<ICycleA, CycleA>();
-        DinContainer.RegisterUnique<ICycleB, CycleB>();
+        // arrange
+        DinContainer.RegisterUnique<ICycle1, Cycle1>();
+        DinContainer.RegisterUnique<ICycle2, Cycle2>();
 
-        Assert.Throws<InvalidOperationException>(() => DinContainer.Resolve<ICycleA>());
+        // act & assert
+        var ex = Assert.Throws<InvalidOperationException>(() => DinContainer.Resolve<ICycle1>());
+        Assert.Contains("Circular dependency detected", ex.Message);
+        Assert.Contains("ICycle1 -> ICycle2 -> ICycle1", ex.Message);
+    }
+
+    [Fact]
+    public void SelfCyclicDependency_ShouldThrowException()
+    {
+        // arrange
+        DinContainer.RegisterUnique<ISelfCycle, SelfCycle>();
+        
+        // act & assert
+        var ex = Assert.Throws<InvalidOperationException>(() => DinContainer.Resolve<ISelfCycle>());
+        Assert.Contains("Circular dependency detected", ex.Message);
+        Assert.Contains("ISelfCycle -> ISelfCycle", ex.Message);
     }
 
     [Fact]
     public void AmbiguousConstructor_ShouldThrowException()
     {
+        // arrange
         DinContainer.RegisterUnique<IAmbiguous, Ambiguous>();
-        DinContainer.RegisterUnique<IServiceA, ServiceA>();
-        DinContainer.RegisterUnique<IServiceB, ServiceB>();
+        DinContainer.RegisterUnique<IService1, Service1>();
+        DinContainer.RegisterUnique<IService2, Service2>();
+        DinContainer.RegisterUnique<IService3, Service3>();
 
+        // act & assert
         Assert.Throws<DinAmbiguousConstructorException>(() => DinContainer.Resolve<IAmbiguous>());
-    }
-
-    public interface ISingleton { }
-    public class Singleton : ISingleton
-    {
-        public static int InstanceCount = 0;
-        public Singleton()
-        {
-            InstanceCount++;
-        }
     }
 
     [Fact]
     public void Singleton_ShouldBeInstantiatedOnlyOnce()
     {
+        // arrange
         Singleton.InstanceCount = 0;
         DinContainer.RegisterUnique<ISingleton, Singleton>();
 
+        // act
         var instance1 = DinContainer.Resolve<ISingleton>();
         var instance2 = DinContainer.Resolve<ISingleton>();
 
+        // assert
         Assert.Same(instance1, instance2);
         Assert.Equal(1, Singleton.InstanceCount);
     }
