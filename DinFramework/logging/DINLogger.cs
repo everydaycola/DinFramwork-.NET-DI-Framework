@@ -2,8 +2,11 @@
 
 public static class DinLogger
 {
+    public static LogLevel CurrentLevel { get; set; } = LogLevel.Info;
+
     public static void Log(string message, LogLevel level = LogLevel.Info)
     {
+        if (level < CurrentLevel) return;
         var time = DateTime.Now.ToString("HH:mm:ss");
         Console.WriteLine($"[{time}][{level}]: {message}");
     }
