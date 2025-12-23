@@ -14,9 +14,12 @@ public class DinContainer
 {
     private static readonly Dictionary<Type, Type> Registry = new();
     private static readonly Dictionary<Type, object> Instances = new();
+    private static readonly Dictionary<Type, ConstructorPlan> ConstructorCache = new();
 
     private static readonly DinDependencyGraph DependencyGraph = new();
     private static readonly ProxyGenerator ProxyGenerator = new();
+
+    private record ConstructorPlan(ConstructorInfo Constructor, ParameterInfo[] Parameters);
 
     public static void RegisterAssembly(Assembly assembly)
     {
@@ -49,8 +52,9 @@ public class DinContainer
         DinLogger.LogInfo(
             $"Registering service: {serviceType.Name} with implementation type: {implementationType.Name}");
         Registry[serviceType] = implementationType;
-        // If re-registering a service, drop any existing instance so the next resolve creates the new mapping
+        // If re-registering a service, drop any existing instance and cached plan
         Instances.Remove(serviceType);
+        ConstructorCache.Remove(implementationType);
         DependencyGraph.AddVertex(serviceType);
     }
 
@@ -70,12 +74,19 @@ public class DinContainer
             DinLogger.LogInfo($"Returning cached instance of service: {serviceType.Name}");
             return existing;
         }
+
         // Validation
         if (!Registry.TryGetValue(serviceType, out var registryValue))
         {
             DinLogger.LogError($"Failed to resolve service: {serviceType.Name} - Not registered");
             // todo throw better exception
             throw new Exception($"Service not registered: {serviceType.Name}");
+        }
+
+        if (ConstructorCache.TryGetValue(registryValue, out var plan))
+        {
+            DinLogger.LogInfo($"Using cached constructor plan for: {registryValue.Name}");
+            return InstantiateFromPlan(serviceType, registryValue, plan);
         }
 
         // Get non default constructors
@@ -95,19 +106,11 @@ public class DinContainer
                     // todo throw better exception
                     throw new Exception($"No constructor found for: {serviceType.Name}");
                 }
-                DinLogger.LogInfo($"Creating instance of service (default ctor): {serviceType.Name}");
-                var inst = defaultConstructor[0].Invoke(null);
 
-                // Interception logic for default constructor
-                if (serviceType.IsInterface && (registryValue.GetCustomAttribute<DinAutoLoggingAttribute>() != null ||
-                                                registryValue.GetMethods().Any(m => m.GetCustomAttribute<DinAutoLoggingAttribute>() != null)))
-                {
-                    DinLogger.LogInfo($"Applying interception to service: {serviceType.Name}");
-                    inst = ProxyGenerator.CreateInterfaceProxyWithTarget(serviceType, inst, new LoggingInterceptor());
-                }
+                plan = new ConstructorPlan(defaultConstructor[0], Array.Empty<ParameterInfo>());
+                ConstructorCache[registryValue] = plan;
 
-                Instances[serviceType] = inst;
-                return inst;
+                return InstantiateFromPlan(serviceType, registryValue, plan);
             case >= 2:
             {
                 DinLogger.LogInfo($"Multiple non-default constructors found for: {serviceType.Name}");
@@ -122,11 +125,15 @@ public class DinContainer
         }
 
         var constructor = nonDefaultConstructors[0];
+        plan = new ConstructorPlan(constructor, constructor.GetParameters());
+        ConstructorCache[registryValue] = plan;
 
-        // Get the parameters that the constructor needs
-        var parameters = constructor.GetParameters();
+        return InstantiateFromPlan(serviceType, registryValue, plan);
+    }
 
-        // Prepare the argument list
+    private static object InstantiateFromPlan(Type serviceType, Type implementationType, ConstructorPlan plan)
+    {
+        var parameters = plan.Parameters;
         var args = new object[parameters.Length];
 
         for (var i = 0; i < parameters.Length; i++)
@@ -143,12 +150,16 @@ public class DinContainer
         }
 
         // Create the object with the resolved arguments
-        DinLogger.LogInfo($"Creating instance of service: {serviceType.Name}");
-        var instance = constructor.Invoke(args);
+        DinLogger.LogInfo(parameters.Length == 0
+            ? $"Creating instance of service (default ctor): {serviceType.Name}"
+            : $"Creating instance of service: {serviceType.Name}");
+
+        var instance = plan.Constructor.Invoke(args);
 
         // Interception logic
-        if (serviceType.IsInterface && (registryValue.GetCustomAttribute<DinAutoLoggingAttribute>() != null ||
-                                        registryValue.GetMethods().Any(m => m.GetCustomAttribute<DinAutoLoggingAttribute>() != null)))
+        if (serviceType.IsInterface && (implementationType.GetCustomAttribute<DinAutoLoggingAttribute>() != null ||
+                                        implementationType.GetMethods()
+                                            .Any(m => m.GetCustomAttribute<DinAutoLoggingAttribute>() != null)))
         {
             DinLogger.LogInfo($"Applying interception to service: {serviceType.Name}");
             instance = ProxyGenerator.CreateInterfaceProxyWithTarget(serviceType, instance, new LoggingInterceptor());
