@@ -81,8 +81,7 @@ public class DinContainer
         if (!Registry.TryGetValue(serviceType, out var registryValue))
         {
             DinLogger.LogError($"Failed to resolve service: {serviceType.Name} - Not registered");
-            // todo throw better exception
-            throw new Exception($"Service not registered: {serviceType.Name}");
+            throw new DinServiceNotRegisteredException(serviceType);
         }
 
         // Return cached singleton if available (Keyed by implementation type)
@@ -112,8 +111,7 @@ public class DinContainer
             case 0:
                 if (defaultConstructor.Count == 0)
                 {
-                    // todo throw better exception
-                    throw new Exception($"No constructor found for: {serviceType.Name}");
+                    throw new DinNoConstructorFoundException(serviceType);
                 }
 
                 plan = new ConstructorPlan(defaultConstructor[0], Array.Empty<ParameterInfo>());
@@ -122,11 +120,10 @@ public class DinContainer
                 return InstantiateFromPlan(serviceType, registryValue, plan);
             case >= 2:
             {
-                DinLogger.LogInfo($"Multiple non-default constructors found for: {serviceType.Name}");
+                DinLogger.LogError($"Multiple non-default constructors found for: {serviceType.Name}");
                 foreach (var c in nonDefaultConstructors)
                 {
-                    // todo test if output is usefull
-                    DinLogger.LogInfo(c.ToString());
+                    DinLogger.LogError($"[Constructor] {c}");
                 }
 
                 throw new DinAmbiguousConstructorException(serviceType);
