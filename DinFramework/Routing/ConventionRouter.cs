@@ -9,7 +9,15 @@ internal static class ConventionRouter
 {
     private static readonly HashSet<Type> ValidatedControllers = [];
     private static readonly Dictionary<Type, List<RouteInfo>> RouteCache = [];
+    private static readonly Dictionary<(Type ProxyType, MethodInfo TargetMethod), MethodInfo> ProxyMethodCache = [];
     private sealed record RouteInfo(string HttpMethod, MethodInfo Method, int ParameterCount);
+
+    public static void ClearCache()
+    {
+        ValidatedControllers.Clear();
+        RouteCache.Clear();
+        ProxyMethodCache.Clear();
+    }
 
     public static bool TryHandle(HttpListenerContext context, object controller, string[] requestSegments)
     {
@@ -86,12 +94,28 @@ internal static class ConventionRouter
     
     private static MethodInfo ResolveMethodForInvoke(object controller, MethodInfo targetMethod)
     {
-        if (controller is not IProxyTargetAccessor) return targetMethod;
+        if (controller is not IProxyTargetAccessor accessor) return targetMethod;
         
         var proxyType = controller.GetType();
-        var map = proxyType.GetInterfaceMap(targetMethod.DeclaringType!);
-        var index = Array.IndexOf(map.TargetMethods, targetMethod);
-        return map.InterfaceMethods[index];
+        var cacheKey = (proxyType, targetMethod);
+
+        if (ProxyMethodCache.TryGetValue(cacheKey, out var cachedMethod))
+            return cachedMethod;
+        
+        var targetType = accessor.DynProxyGetTarget().GetType();
+        
+        var interfaceType = targetType.GetInterfaces()
+            .FirstOrDefault(i => i.GetMethod(targetMethod.Name, targetMethod.GetParameters().Select(p => p.ParameterType).ToArray()) != null);
+
+        if (interfaceType == null) return targetMethod;
+
+        var map = proxyType.GetInterfaceMap(interfaceType);
+        var interfaceMethod = interfaceType.GetMethod(targetMethod.Name, targetMethod.GetParameters().Select(p => p.ParameterType).ToArray());
+        var index = Array.IndexOf(map.InterfaceMethods, interfaceMethod);
+        var resolvedMethod = map.TargetMethods[index];
+
+        ProxyMethodCache[cacheKey] = resolvedMethod;
+        return resolvedMethod;
     }
     
     private static void SendResponse(HttpListenerContext context, MethodInfo method, object result)

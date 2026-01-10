@@ -31,6 +31,7 @@ public class DinContainer
             Instances.Clear();
             ConstructorCache.Clear();
             DependencyGraph.Clear();
+            ConventionRouter.ClearCache();
         }
     }
 
